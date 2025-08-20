@@ -75,48 +75,12 @@ const useOfflineStorage = (key, initialValue) => {
 
 const FitnessTracker = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [progressPhotos, setProgressPhotos] = useOfflineStorage('progressPhotos', []);
   const [workouts, setWorkouts] = useOfflineStorage('workouts', []);
   const [goals, setGoals] = useOfflineStorage('goals', []);
   const [habits, setHabits] = useOfflineStorage('habits', [
     { id: 1, name: 'Drink 8 glasses of water', streak: 5, completed: true, category: 'hydration' },
     { id: 2, name: '10,000 steps daily', streak: 3, completed: false, category: 'activity' },
     { id: 3, name: '8 hours of sleep', streak: 2, completed: true, category: 'recovery' }
-  ]);
-
-  const [workoutTemplates, setWorkoutTemplates] = useState([
-    {
-      id: 1,
-      name: 'Full Body HIIT',
-      creator: 'Sarah Johnson',
-      duration: 30,
-      difficulty: 'Intermediate',
-      exercises: [
-        { name: 'Burpees', sets: 3, reps: 10, duration: 30 },
-        { name: 'Jump Squats', sets: 3, reps: 15, duration: 45 },
-        { name: 'Push-ups', sets: 3, reps: 12, duration: 30 },
-        { name: 'Mountain Climbers', sets: 3, reps: 20, duration: 45 }
-      ],
-      tags: ['HIIT', 'Full Body', 'No Equipment'],
-      likes: 24,
-      uses: 156
-    },
-    {
-      id: 2,
-      name: 'Beginner Strength',
-      creator: 'Mike Chen',
-      duration: 45,
-      difficulty: 'Beginner',
-      exercises: [
-        { name: 'Bodyweight Squats', sets: 3, reps: 12, duration: null },
-        { name: 'Wall Push-ups', sets: 3, reps: 8, duration: null },
-        { name: 'Planks', sets: 3, reps: null, duration: 30 },
-        { name: 'Lunges', sets: 3, reps: 10, duration: null }
-      ],
-      tags: ['Beginner', 'Strength', 'Bodyweight'],
-      likes: 18,
-      uses: 89
-    }
   ]);
 
   const [challenges, setChallenges] = useState([
@@ -234,28 +198,6 @@ const FitnessTracker = () => {
   const { isInstallable, installApp } = usePWA();
   const isOnline = navigator.onLine;
 
-  // Analytics mock data
-  const analyticsData = {
-    weeklyWorkouts: [
-      { week: 'Week 1', workouts: 3, duration: 120 },
-      { week: 'Week 2', workouts: 4, duration: 150 },
-      { week: 'Week 3', workouts: 5, duration: 180 },
-      { week: 'Week 4', workouts: 4, duration: 160 },
-    ],
-    workoutTypes: [
-      { type: 'Strength', count: 12, percentage: 40 },
-      { type: 'Cardio', count: 9, percentage: 30 },
-      { type: 'Flexibility', count: 6, percentage: 20 },
-      { type: 'Sports', count: 3, percentage: 10 }
-    ],
-    progressMetrics: {
-      totalWorkouts: workouts.length,
-      totalHours: Math.round(workouts.reduce((sum, w) => sum + parseInt(w.duration || 0), 0) / 60),
-      averagePerWeek: 4.2,
-      consistencyScore: 85
-    }
-  };
-
   // Mock AI responses
   const getAIResponse = (message) => {
     const lowerMessage = message.toLowerCase();
@@ -263,30 +205,12 @@ const FitnessTracker = () => {
       return "Challenges are great for motivation! I see you're in the August Consistency Challenge. Try to maintain 4+ workouts per week. The plank challenge is also excellent for core strength - start with 30-second holds and build up!";
     } else if (lowerMessage.includes('habit')) {
       return "Building habits is key to long-term success! I notice you're doing well with hydration. For the 10K steps, try taking walking breaks every hour, parking farther away, or taking stairs. Small changes add up!";
-    } else if (lowerMessage.includes('template')) {
-      return "Workout templates are perfect for consistency! The 'Full Body HIIT' template is popular for good reason. Try it 2-3x per week with rest days between. You can also create your own templates based on exercises you enjoy!";
+    } else if (lowerMessage.includes('friends') || lowerMessage.includes('social')) {
+      return "Having workout buddies is amazing for motivation! Try sharing your workouts with friends, join group challenges, or find an accountability partner. Social support increases your chance of success by 95%!";
     } else if (lowerMessage.includes('workout') || lowerMessage.includes('exercise')) {
       return "Based on your goals, I recommend a mix of strength training and cardio. Try: 3x/week strength training (compound movements like squats, deadlifts, push-ups) and 2x/week cardio (20-30 min sessions). What's your current fitness level?";
-    } else if (lowerMessage.includes('analytics') || lowerMessage.includes('progress')) {
-      return "Your analytics show great consistency! You're averaging 4.2 workouts per week with an 85% consistency score. Focus on maintaining this rhythm. I notice strength training makes up 40% of your workouts - consider adding more variety for balanced fitness!";
     } else {
       return "That's a great question! I'm here to help with workouts, nutrition, goal setting, challenges, and motivation. Feel free to ask me anything about your fitness journey. What specific area would you like guidance on?";
-    }
-  };
-
-  const handlePhotoUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProgressPhotos([...progressPhotos, {
-          id: Date.now(),
-          src: e.target.result,
-          date: new Date().toLocaleDateString(),
-          notes: ''
-        }]);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -312,15 +236,6 @@ const FitnessTracker = () => {
 
   const addGoal = (goal) => {
     setGoals([...goals, { ...goal, id: Date.now(), progress: 0, created: new Date().toLocaleDateString() }]);
-  };
-
-  const addWorkoutTemplate = (template) => {
-    setWorkoutTemplates([...workoutTemplates, { ...template, id: Date.now(), creator: userProfile.name, likes: 0, uses: 0 }]);
-  };
-
-  const startWorkoutFromTemplate = (template) => {
-    setActiveTab('workouts');
-    alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
 
   const toggleHabit = (habitId) => {
@@ -356,6 +271,14 @@ const FitnessTracker = () => {
     ));
   };
 
+  const followFriend = (friendId) => {
+    setFriends(friends.map(friend => 
+      friend.id === friendId 
+        ? { ...friend, isFollowing: !friend.isFollowing, followers: friend.isFollowing ? friend.followers - 1 : friend.followers + 1 }
+        : friend
+    ));
+  };
+
   const addComment = (postId) => {
     const commentText = newComment[postId];
     if (commentText && commentText.trim()) {
@@ -380,12 +303,9 @@ const FitnessTracker = () => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
   };
 
-  const followUser = (userId) => {
-    setFriends(friends.map(friend => 
-      friend.id === userId 
-        ? { ...friend, isFollowing: !friend.isFollowing, followers: friend.isFollowing ? friend.followers - 1 : friend.followers + 1 }
-        : friend
-    ));
+  const tryWorkout = (workout) => {
+    setActiveTab('workouts');
+    alert(`Starting "${workout.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
 
   // PWA Install Banner Component
@@ -456,19 +376,19 @@ const FitnessTracker = () => {
         <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Challenges</h3>
-              <p className="text-2xl font-bold">{challenges.filter(c => c.isJoined).length}</p>
+              <h3 className="text-lg font-semibold">Friends</h3>
+              <p className="text-2xl font-bold">{friends.filter(f => f.isFollowing).length}</p>
             </div>
-            <Trophy className="h-10 w-10" />
+            <Users className="h-10 w-10" />
           </div>
         </div>
         <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Badges</h3>
-              <p className="text-2xl font-bold">{achievements.filter(a => a.earned).length}</p>
+              <h3 className="text-lg font-semibold">Challenges</h3>
+              <p className="text-2xl font-bold">{challenges.filter(c => c.isJoined).length}</p>
             </div>
-            <Award className="h-10 w-10" />
+            <Trophy className="h-10 w-10" />
           </div>
         </div>
       </div>
@@ -479,14 +399,14 @@ const FitnessTracker = () => {
           <div>
             <h3 className="text-lg font-semibold flex items-center">
               <Smartphone className="mr-2 h-6 w-6" />
-              App Features
+              FitTrack Social
             </h3>
             <p className="text-sm opacity-90 mt-1">
-              ✓ Works offline  ✓ Install as app  ✓ Auto-sync data
+              ✓ Works offline  ✓ Social features  ✓ Challenge friends
             </p>
             <div className="flex items-center mt-2">
               {isOnline ? (
-                <><Wifi className="h-4 w-4 mr-1" /><span className="text-sm">Online & Synced</span></>
+                <><Wifi className="h-4 w-4 mr-1" /><span className="text-sm">Online & Connected</span></>
               ) : (
                 <><WifiOff className="h-4 w-4 mr-1" /><span className="text-sm">Offline Mode</span></>
               )}
@@ -565,19 +485,19 @@ const FitnessTracker = () => {
           </div>
         </div>
 
-        {/* Recent Achievements */}
+        {/* Friend Activity */}
         <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
           <h3 className="text-xl font-bold mb-4 flex items-center text-slate-800">
-            <Award className="mr-2 text-purple-600" />
-            Recent Achievements
+            <Users className="mr-2 text-rose-600" />
+            Friend Activity
           </h3>
           <div className="space-y-3">
-            {achievements.filter(a => a.earned).slice(-3).map((achievement) => (
-              <div key={achievement.id} className="flex items-center">
-                <span className="text-2xl mr-3">{achievement.icon}</span>
+            {friends.filter(f => f.isFollowing).slice(0, 3).map((friend) => (
+              <div key={friend.id} className="flex items-center">
+                <span className="text-2xl mr-3">{friend.avatar}</span>
                 <div>
-                  <p className="font-semibold text-sm text-slate-700">{achievement.name}</p>
-                  <p className="text-xs text-slate-500">{achievement.date}</p>
+                  <p className="font-semibold text-sm text-slate-700">{friend.name}</p>
+                  <p className="text-xs text-slate-500">completed a workout</p>
                 </div>
               </div>
             ))}
@@ -637,7 +557,7 @@ const FitnessTracker = () => {
                   </div>
                   <div className="flex gap-2 mt-3">
                     <button 
-                      onClick={() => startWorkoutFromTemplate(post.content)}
+                      onClick={() => tryWorkout(post.content)}
                       className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
                     >
                       <Play className="mr-2 h-4 w-4" />
@@ -718,6 +638,77 @@ const FitnessTracker = () => {
               )}
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const FriendsView = () => (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-800">Find Friends</h2>
+          <div className="flex items-center space-x-2">
+            <Search className="h-5 w-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {friends.map((friend) => (
+            <div key={friend.id} className="flex items-center justify-between p-4 border border-stone-200 rounded-lg bg-white">
+              <div className="flex items-center space-x-4">
+                <span className="text-4xl">{friend.avatar}</span>
+                <div>
+                  <h3 className="font-semibold text-slate-800">{friend.name}</h3>
+                  <p className="text-slate-600">{friend.username}</p>
+                  <p className="text-sm text-slate-500">
+                    {friend.followers} followers • {friend.following} following
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => followFriend(friend.id)}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+                  friend.isFollowing 
+                    ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
+                    : 'bg-slate-800 text-white hover:bg-slate-700'
+                }`}
+              >
+                {friend.isFollowing ? (
+                  <>
+                    <Users className="mr-2 h-4 w-4" />
+                    Following
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Follow
+                  </>
+                )}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <h3 className="text-xl font-bold mb-4 text-slate-800">Your Network</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+            <p className="text-2xl font-bold text-emerald-600">{friends.filter(f => f.isFollowing).length}</p>
+            <p className="text-sm text-emerald-700">Following</p>
+          </div>
+          <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
+            <p className="text-2xl font-bold text-amber-600">{userProfile.followers}</p>
+            <p className="text-sm text-amber-700">Followers</p>
+          </div>
         </div>
       </div>
     </div>
@@ -818,76 +809,6 @@ const FitnessTracker = () => {
     </div>
   );
 
-  const AnalyticsView = () => (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <BarChart3 className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Workouts</h3>
-          <p className="text-3xl font-bold text-slate-800">{analyticsData.progressMetrics.totalWorkouts}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Clock className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Hours</h3>
-          <p className="text-3xl font-bold text-emerald-600">{analyticsData.progressMetrics.totalHours}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Weekly Average</h3>
-          <p className="text-3xl font-bold text-purple-600">{analyticsData.progressMetrics.averagePerWeek}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Star className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Consistency</h3>
-          <p className="text-3xl font-bold text-amber-600">{analyticsData.progressMetrics.consistencyScore}%</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
-          <div className="space-y-3">
-            {analyticsData.weeklyWorkouts.map((week, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">{week.week}</span>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
-                    <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.workouts} workouts</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 text-emerald-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.duration} min</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Workout Type Distribution</h3>
-          <div className="space-y-4">
-            {analyticsData.workoutTypes.map((type, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">{type.type}</span>
-                  <span className="text-sm text-slate-600">{type.count} workouts ({type.percentage}%)</span>
-                </div>
-                <div className="bg-stone-200 rounded-full h-3">
-                  <div 
-                    className="bg-slate-700 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${type.percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   const HabitsView = () => (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
@@ -956,243 +877,6 @@ const FitnessTracker = () => {
     </div>
   );
 
-  const TemplatesView = () => {
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [newTemplate, setNewTemplate] = useState({
-      name: '',
-      duration: '',
-      difficulty: 'Beginner',
-      exercises: [{ name: '', sets: '', reps: '', duration: '' }],
-      tags: ''
-    });
-
-    const addExercise = () => {
-      setNewTemplate({
-        ...newTemplate,
-        exercises: [...newTemplate.exercises, { name: '', sets: '', reps: '', duration: '' }]
-      });
-    };
-
-    const updateExercise = (index, field, value) => {
-      const updatedExercises = newTemplate.exercises.map((exercise, i) => 
-        i === index ? { ...exercise, [field]: value } : exercise
-      );
-      setNewTemplate({ ...newTemplate, exercises: updatedExercises });
-    };
-
-    const handleCreateTemplate = () => {
-      if (newTemplate.name && newTemplate.exercises.some(e => e.name)) {
-        const template = {
-          ...newTemplate,
-          tags: newTemplate.tags.split(',').map(tag => tag.trim()),
-          exercises: newTemplate.exercises.filter(e => e.name)
-        };
-        addWorkoutTemplate(template);
-        setNewTemplate({
-          name: '',
-          duration: '',
-          difficulty: 'Beginner',
-          exercises: [{ name: '', sets: '', reps: '', duration: '' }],
-          tags: ''
-        });
-        setShowCreateForm(false);
-      }
-    };
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Workout Templates</h2>
-          <button 
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Template
-          </button>
-        </div>
-
-        {showCreateForm && (
-          <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Create New Template</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="Template name"
-                value={newTemplate.name}
-                onChange={(e) => setNewTemplate({...newTemplate, name: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Duration (minutes)"
-                value={newTemplate.duration}
-                onChange={(e) => setNewTemplate({...newTemplate, duration: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-              <select
-                value={newTemplate.difficulty}
-                onChange={(e) => setNewTemplate({...newTemplate, difficulty: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2 text-slate-700">Exercises</h4>
-              {newTemplate.exercises.map((exercise, index) => (
-                <div key={index} className="grid grid-cols-4 gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Exercise name"
-                    value={exercise.name}
-                    onChange={(e) => updateExercise(index, 'name', e.target.value)}
-                    className="border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Sets"
-                    value={exercise.sets}
-                    onChange={(e) => updateExercise(index, 'sets', e.target.value)}
-                    className="border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Reps"
-                    value={exercise.reps}
-                    onChange={(e) => updateExercise(index, 'reps', e.target.value)}
-                    className="border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Duration (sec)"
-                    value={exercise.duration}
-                    onChange={(e) => updateExercise(index, 'duration', e.target.value)}
-                    className="border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                  />
-                </div>
-              ))}
-              <button 
-                onClick={addExercise}
-                className="text-slate-600 hover:text-slate-800 text-sm"
-              >
-                + Add Exercise
-              </button>
-            </div>
-
-            <input
-              type="text"
-              placeholder="Tags (comma separated)"
-              value={newTemplate.tags}
-              onChange={(e) => setNewTemplate({...newTemplate, tags: e.target.value})}
-              className="w-full border border-stone-300 rounded-lg p-3 mb-4 bg-white focus:border-slate-500 focus:outline-none"
-            />
-
-            <div className="flex gap-3">
-              <button 
-                onClick={handleCreateTemplate}
-                className="bg-slate-800 text-white px-6 py-2 rounded-lg hover:bg-slate-700 transition-colors"
-              >
-                Create Template
-              </button>
-              <button 
-                onClick={() => setShowCreateForm(false)}
-                className="bg-stone-300 text-slate-700 px-6 py-2 rounded-lg hover:bg-stone-400 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workoutTemplates.map((template) => (
-            <div key={template.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-slate-800">{template.name}</h3>
-                  <p className="text-slate-600">by {template.creator}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    template.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-800' :
-                    template.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-800' :
-                    'bg-rose-100 text-rose-800'
-                  }`}>
-                    {template.difficulty}
-                  </span>
-                  <button className="text-slate-400 hover:text-slate-600">
-                    <Bookmark className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center text-slate-600">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {template.duration} minutes
-                </div>
-                <div className="space-y-2">
-                  {template.exercises.slice(0, 3).map((exercise, index) => (
-                    <div key={index} className="text-sm bg-white rounded p-2 border border-stone-200">
-                      <span className="font-medium text-slate-700">{exercise.name}</span>
-                      {exercise.sets && exercise.reps && (
-                        <span className="text-slate-600 ml-2">
-                          {exercise.sets} sets × {exercise.reps} reps
-                        </span>
-                      )}
-                      {exercise.duration && (
-                        <span className="text-slate-600 ml-2">
-                          {exercise.duration}s
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                  {template.exercises.length > 3 && (
-                    <div className="text-sm text-slate-500">
-                      +{template.exercises.length - 3} more exercises
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1 mb-4">
-                {template.tags.map((tag, index) => (
-                  <span key={index} className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded border">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-slate-500">
-                  <span className="flex items-center">
-                    <Heart className="h-4 w-4 mr-1" />
-                    {template.likes}
-                  </span>
-                  <span className="flex items-center">
-                    <Eye className="h-4 w-4 mr-1" />
-                    {template.uses} uses
-                  </span>
-                </div>
-                <button 
-                  onClick={() => startWorkoutFromTemplate(template)}
-                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Use Template
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   const WorkoutView = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [newWorkout, setNewWorkout] = useState({
@@ -1200,14 +884,13 @@ const FitnessTracker = () => {
       type: 'Strength',
       duration: '',
       exercises: '',
-      notes: '',
-      hasVideo: false
+      notes: ''
     });
 
     const handleAddWorkout = () => {
       if (newWorkout.name && newWorkout.duration) {
         addWorkout(newWorkout);
-        setNewWorkout({ name: '', type: 'Strength', duration: '', exercises: '', notes: '', hasVideo: false });
+        setNewWorkout({ name: '', type: 'Strength', duration: '', exercises: '', notes: '' });
         setShowAddForm(false);
       }
     };
@@ -1272,16 +955,6 @@ const FitnessTracker = () => {
               className="w-full border border-stone-300 rounded-lg p-3 mt-4 bg-white focus:border-slate-500 focus:outline-none"
               rows="3"
             />
-            <div className="flex items-center mt-4">
-              <input
-                type="checkbox"
-                id="hasVideo"
-                checked={newWorkout.hasVideo}
-                onChange={(e) => setNewWorkout({...newWorkout, hasVideo: e.target.checked})}
-                className="mr-2"
-              />
-              <label htmlFor="hasVideo" className="text-sm text-slate-700">Include workout video</label>
-            </div>
             <div className="flex gap-3 mt-4">
               <button 
                 onClick={handleAddWorkout}
@@ -1304,17 +977,9 @@ const FitnessTracker = () => {
             <div key={workout.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-semibold text-slate-800">{workout.name}</h3>
-                <div className="flex items-center space-x-2">
-                  <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
-                    {workout.type}
-                  </span>
-                  {workout.hasVideo && (
-                    <Video className="h-4 w-4 text-rose-500" />
-                  )}
-                  <button className="text-slate-400 hover:text-slate-600">
-                    <Copy className="h-4 w-4" />
-                  </button>
-                </div>
+                <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
+                  {workout.type}
+                </span>
               </div>
               <div className="space-y-2">
                 <p className="flex items-center text-slate-600">
@@ -1500,160 +1165,6 @@ const FitnessTracker = () => {
     );
   };
 
-  const ProfileView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex items-center space-x-6 mb-6">
-          <div className="text-6xl">{userProfile.avatar}</div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800">{userProfile.name}</h2>
-            <p className="text-slate-600">{userProfile.username}</p>
-            <p className="text-slate-700 mt-2">{userProfile.bio}</p>
-          </div>
-          <button className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            Edit Profile
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-5 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-slate-700">{userProfile.workoutsCompleted}</p>
-            <p className="text-sm text-slate-600">Workouts</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-emerald-600">{userProfile.goalsAchieved}</p>
-            <p className="text-sm text-slate-600">Goals</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-purple-600">{userProfile.followers}</p>
-            <p className="text-sm text-slate-600">Followers</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-amber-600">{userProfile.following}</p>
-            <p className="text-sm text-slate-600">Following</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-rose-600">{userProfile.currentStreak}</p>
-            <p className="text-sm text-slate-600">Streak</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Recent Achievements</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {achievements.filter(a => a.earned).map((achievement) => (
-            <div key={achievement.id} className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <div className="text-3xl mb-2">{achievement.icon}</div>
-              <h4 className="font-semibold text-sm text-slate-700">{achievement.name}</h4>
-              <p className="text-xs text-slate-500 mt-1">{achievement.date}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const FriendsView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">Find Friends</h2>
-          <div className="flex items-center space-x-2">
-            <Search className="h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {friends.map((friend) => (
-            <div key={friend.id} className="flex items-center justify-between p-4 border border-stone-200 rounded-lg bg-white">
-              <div className="flex items-center space-x-4">
-                <span className="text-4xl">{friend.avatar}</span>
-                <div>
-                  <h3 className="font-semibold text-slate-800">{friend.name}</h3>
-                  <p className="text-slate-600">{friend.username}</p>
-                  <p className="text-sm text-slate-500">
-                    {friend.followers} followers • {friend.following} following
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => followUser(friend.id)}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-                  friend.isFollowing 
-                    ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
-                    : 'bg-slate-800 text-white hover:bg-slate-700'
-                }`}
-              >
-                {friend.isFollowing ? (
-                  <>
-                    <Users className="mr-2 h-4 w-4" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Follow
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProgressPhotosView = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Progress Photos</h2>
-        <label className="bg-slate-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-700 transition-colors flex items-center">
-          <Plus className="mr-2 h-4 w-4" />
-          Upload Photo
-          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-        </label>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {progressPhotos.map((photo) => (
-          <div key={photo.id} className="bg-stone-50 rounded-xl shadow-lg overflow-hidden border border-stone-200">
-            <img src={photo.src} alt="Progress" className="w-full h-48 object-cover" />
-            <div className="p-4">
-              <p className="text-sm text-slate-600 mb-2">{photo.date}</p>
-              <textarea 
-                placeholder="Add notes about this progress photo..."
-                className="w-full text-sm border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                value={photo.notes}
-                onChange={(e) => {
-                  setProgressPhotos(progressPhotos.map(p => 
-                    p.id === photo.id ? {...p, notes: e.target.value} : p
-                  ));
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {progressPhotos.length === 0 && (
-        <div className="text-center py-12">
-          <Camera className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-          <h3 className="text-lg font-semibold text-slate-600 mb-2">No progress photos yet</h3>
-          <p className="text-slate-500">Upload your first photo to start tracking your transformation!</p>
-        </div>
-      )}
-    </div>
-  );
-
   const AICoachView = () => (
     <div className="max-w-4xl mx-auto">
       <div className="bg-stone-50 rounded-xl shadow-lg h-96 flex flex-col border border-stone-200">
@@ -1661,7 +1172,6 @@ const FitnessTracker = () => {
           <h2 className="text-xl font-bold flex items-center">
             <MessageCircle className="mr-2" />
             AI Fitness Coach
-            {!isOnline && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Offline Mode</span>}
           </h2>
           <p className="text-stone-200 text-sm">Get personalized tips, workout suggestions, and motivation!</p>
         </div>
@@ -1693,7 +1203,7 @@ const FitnessTracker = () => {
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Ask about workouts, habits, challenges, templates..."
+              placeholder="Ask about workouts, habits, challenges, social features..."
               className="flex-1 border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
             />
             <button 
@@ -1711,15 +1221,11 @@ const FitnessTracker = () => {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: TrendingUp },
     { id: 'social', name: 'Social', icon: Users },
-    { id: 'challenges', name: 'Challenges', icon: Trophy },
-    { id: 'analytics', name: 'Analytics', icon: BarChart3 },
-    { id: 'habits', name: 'Habits', icon: CheckCircle },
-    { id: 'templates', name: 'Templates', icon: Bookmark },
     { id: 'workouts', name: 'Workouts', icon: Dumbbell },
-    { id: 'goals', name: 'Goals', icon: Target },
-    { id: 'profile', name: 'Profile', icon: User },
     { id: 'friends', name: 'Friends', icon: UserPlus },
-    { id: 'photos', name: 'Photos', icon: Camera },
+    { id: 'challenges', name: 'Challenges', icon: Trophy },
+    { id: 'habits', name: 'Habits', icon: CheckCircle },
+    { id: 'goals', name: 'Goals', icon: Target },
     { id: 'coach', name: 'AI Coach', icon: MessageCircle }
   ];
 
@@ -1732,7 +1238,7 @@ const FitnessTracker = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-amber-400 bg-clip-text text-transparent">
-              FitTrack Social PWA
+              FitTrack Social
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -1778,15 +1284,11 @@ const FitnessTracker = () => {
         <div className="transition-all duration-300">
           {activeTab === 'dashboard' && <DashboardView />}
           {activeTab === 'social' && <SocialView />}
-          {activeTab === 'challenges' && <ChallengesView />}
-          {activeTab === 'analytics' && <AnalyticsView />}
-          {activeTab === 'habits' && <HabitsView />}
-          {activeTab === 'templates' && <TemplatesView />}
-          {activeTab === 'profile' && <ProfileView />}
-          {activeTab === 'friends' && <FriendsView />}
           {activeTab === 'workouts' && <WorkoutView />}
+          {activeTab === 'friends' && <FriendsView />}
+          {activeTab === 'challenges' && <ChallengesView />}
+          {activeTab === 'habits' && <HabitsView />}
           {activeTab === 'goals' && <GoalsView />}
-          {activeTab === 'photos' && <ProgressPhotosView />}
           {activeTab === 'coach' && <AICoachView />}
         </div>
       </div>
