@@ -1,171 +1,90 @@
 import React, { useState } from 'react';
-import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send } from 'lucide-react';
+import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send, Home, Compass, PlusSquare, MoreHorizontal, Grid, List } from 'lucide-react';
 
 const FitnessTracker = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home');
   const [workouts, setWorkouts] = useState([]);
   const [goals, setGoals] = useState([]);
-  const [habits, setHabits] = useState([
-    { id: 1, name: 'Drink 8 glasses of water', streak: 5, completed: true },
-    { id: 2, name: '10,000 steps daily', streak: 3, completed: false },
-    { id: 3, name: '8 hours of sleep', streak: 2, completed: true }
-  ]);
+  const [showStories, setShowStories] = useState(true);
 
-  const [workoutTemplates, setWorkoutTemplates] = useState([
-    {
-      id: 1,
-      name: 'Full Body HIIT',
-      creator: 'Sarah Johnson',
-      duration: 30,
-      difficulty: 'Intermediate',
-      exercises: [
-        { name: 'Burpees', sets: 3, reps: 10 },
-        { name: 'Jump Squats', sets: 3, reps: 15 },
-        { name: 'Push-ups', sets: 3, reps: 12 },
-        { name: 'Mountain Climbers', sets: 3, reps: 20 }
-      ],
-      tags: ['HIIT', 'Full Body', 'No Equipment'],
-      likes: 24,
-      uses: 156
-    },
-    {
-      id: 2,
-      name: 'Beginner Strength',
-      creator: 'Mike Chen',
-      duration: 45,
-      difficulty: 'Beginner',
-      exercises: [
-        { name: 'Bodyweight Squats', sets: 3, reps: 12 },
-        { name: 'Wall Push-ups', sets: 3, reps: 8 },
-        { name: 'Planks', sets: 3, duration: 30 },
-        { name: 'Lunges', sets: 3, reps: 10 }
-      ],
-      tags: ['Beginner', 'Strength', 'Bodyweight'],
-      likes: 18,
-      uses: 89
-    }
-  ]);
-
-  const [friends, setFriends] = useState([
-    { id: 1, name: 'Sarah Johnson', username: '@sarahfit', avatar: '👩‍💪', followers: 234, following: 156, isFollowing: true },
-    { id: 2, name: 'Mike Chen', username: '@mikelifts', avatar: '💪', followers: 189, following: 203, isFollowing: true },
-    { id: 3, name: 'Emma Davis', username: '@emmarunner', avatar: '🏃‍♀️', followers: 456, following: 234, isFollowing: false }
+  // Stories data
+  const [stories, setStories] = useState([
+    { id: 1, user: 'You', avatar: '🔥', hasNew: true, isYours: true },
+    { id: 2, user: 'Sarah', avatar: '👩‍💪', hasNew: true, isYours: false },
+    { id: 3, user: 'Mike', avatar: '💪', hasNew: true, isYours: false },
+    { id: 4, user: 'Emma', avatar: '🏃‍♀️', hasNew: false, isYours: false },
+    { id: 5, user: 'Alex', avatar: '🚴‍♂️', hasNew: true, isYours: false },
   ]);
 
   const [socialFeed, setSocialFeed] = useState([
     {
       id: 1,
-      user: { name: 'Sarah Johnson', username: '@sarahfit', avatar: '👩‍💪' },
+      user: { name: 'Sarah Johnson', username: 'sarahfit', avatar: '👩‍💪', isVerified: true },
       type: 'workout',
       content: {
-        name: 'HIIT Cardio Blast',
-        type: 'Cardio',
-        duration: 25,
-        exercises: 'Burpees, Mountain Climbers, Jump Squats',
-        notes: 'Great for burning calories! 30 sec work, 15 sec rest.'
+        image: '/api/placeholder/400/300',
+        workout: 'Morning HIIT Session',
+        duration: '25 min',
+        calories: '340 cal',
+        exercises: ['Burpees', 'Mountain Climbers', 'Jump Squats', 'Push-ups']
       },
-      likes: 12,
-      timeAgo: '2h ago',
-      isLiked: false
+      likes: 127,
+      comments: 23,
+      timeAgo: '2h',
+      isLiked: false,
+      location: 'Gold\'s Gym Downtown'
     },
     {
       id: 2,
-      user: { name: 'Mike Chen', username: '@mikelifts', avatar: '💪' },
+      user: { name: 'Mike Chen', username: 'mikelifts', avatar: '💪', isVerified: false },
       type: 'progress',
       content: {
-        text: 'Hit a new PR today! 225lb deadlift! 💪 Consistency pays off!',
-        achievement: 'New Personal Record'
+        image: '/api/placeholder/400/300',
+        text: 'New PR! 225lb deadlift 💪 6 months of consistent training paying off!',
+        achievement: 'Personal Record'
       },
-      likes: 23,
-      timeAgo: '4h ago',
-      isLiked: true
+      likes: 89,
+      comments: 15,
+      timeAgo: '4h',
+      isLiked: true,
+      location: 'Fitness First'
+    },
+    {
+      id: 3,
+      user: { name: 'Emma Davis', username: 'emmarunner', avatar: '🏃‍♀️', isVerified: true },
+      type: 'workout',
+      content: {
+        image: '/api/placeholder/400/300',
+        workout: '5K Morning Run',
+        duration: '28 min',
+        calories: '420 cal',
+        exercises: ['5K Run', 'Cool Down Stretch']
+      },
+      likes: 156,
+      comments: 31,
+      timeAgo: '6h',
+      isLiked: false,
+      location: 'Central Park'
     }
   ]);
 
   const [userProfile, setUserProfile] = useState({
     name: 'You',
-    username: '@yourfit',
-    bio: 'On a journey to become my best self! 💪',
+    username: 'yourfitness',
+    bio: 'Fitness enthusiast 💪 | Transform your body, transform your life ✨ | DM for workout tips 📩',
     avatar: '🔥',
-    followers: 45,
-    following: 67,
-    workoutsCompleted: workouts.length,
-    goalsAchieved: goals.filter(g => g.progress === 100).length,
-    currentStreak: 7,
-    longestStreak: 15
+    followers: 1247,
+    following: 892,
+    posts: 156,
+    isVerified: false,
+    website: 'linktr.ee/yourfitness'
   });
 
-  const [chatMessages, setChatMessages] = useState([
-    { type: 'ai', message: "Hi! I'm your AI fitness coach. I'm here to help you reach your goals! What would you like to work on today?" }
+  const [friends, setFriends] = useState([
+    { id: 1, name: 'Sarah Johnson', username: 'sarahfit', avatar: '👩‍💪', isVerified: true, mutualFriends: 12 },
+    { id: 2, name: 'Mike Chen', username: 'mikelifts', avatar: '💪', isVerified: false, mutualFriends: 8 },
+    { id: 3, name: 'Emma Davis', username: 'emmarunner', avatar: '🏃‍♀️', isVerified: true, mutualFriends: 15 }
   ]);
-  const [chatInput, setChatInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Analytics mock data
-  const analyticsData = {
-    weeklyWorkouts: [
-      { week: 'Week 1', workouts: 3, duration: 120 },
-      { week: 'Week 2', workouts: 4, duration: 150 },
-      { week: 'Week 3', workouts: 5, duration: 180 },
-      { week: 'Week 4', workouts: 4, duration: 160 },
-    ],
-    workoutTypes: [
-      { type: 'Strength', count: 12, percentage: 40 },
-      { type: 'Cardio', count: 9, percentage: 30 },
-      { type: 'Flexibility', count: 6, percentage: 20 },
-      { type: 'Sports', count: 3, percentage: 10 }
-    ],
-    progressMetrics: {
-      totalWorkouts: workouts.length,
-      totalHours: Math.round(workouts.reduce((sum, w) => sum + parseInt(w.duration || 0), 0) / 60),
-      averagePerWeek: 4.2,
-      consistencyScore: 85
-    }
-  };
-
-  const addWorkout = (workout) => {
-    const newWorkout = { ...workout, id: Date.now(), date: new Date().toLocaleDateString() };
-    setWorkouts([...workouts, newWorkout]);
-    
-    // Auto-post to social feed
-    const socialPost = {
-      id: Date.now() + 1,
-      user: userProfile,
-      type: 'workout',
-      content: newWorkout,
-      likes: 0,
-      timeAgo: 'just now',
-      isLiked: false
-    };
-    setSocialFeed([socialPost, ...socialFeed]);
-  };
-
-  const addGoal = (goal) => {
-    setGoals([...goals, { ...goal, id: Date.now(), progress: 0, created: new Date().toLocaleDateString() }]);
-  };
-
-  // FIXED: Renamed from "useTemplate" to "startTemplate" (no "use" prefix!)
-  const startTemplate = (template) => {
-    setActiveTab('workouts');
-    alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
-  };
-
-  const toggleHabit = (habitId) => {
-    setHabits(habits.map(habit => 
-      habit.id === habitId 
-        ? { ...habit, completed: !habit.completed, streak: habit.completed ? habit.streak - 1 : habit.streak + 1 }
-        : habit
-    ));
-  };
-
-  const sendMessage = () => {
-    if (chatInput.trim()) {
-      const userMessage = { type: 'user', message: chatInput };
-      const aiResponse = { type: 'ai', message: "Great question! I'm here to help with your fitness journey. Keep up the amazing work!" };
-      setChatMessages([...chatMessages, userMessage, aiResponse]);
-      setChatInput('');
-    }
-  };
 
   const toggleLike = (postId) => {
     setSocialFeed(socialFeed.map(post => 
@@ -175,322 +94,140 @@ const FitnessTracker = () => {
     ));
   };
 
-  const DashboardView = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Workouts</h3>
-              <p className="text-2xl font-bold text-amber-300">{workouts.length}</p>
-            </div>
-            <Dumbbell className="h-10 w-10 text-amber-300" />
-          </div>
+  // Home Feed View (Instagram-style)
+  const HomeView = () => (
+    <div className="max-w-lg mx-auto bg-white min-h-screen">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+        <div className="flex items-center">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            FitGram
+          </h1>
         </div>
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Streak</h3>
-              <p className="text-2xl font-bold">{userProfile.currentStreak}</p>
-            </div>
-            <Zap className="h-10 w-10" />
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Goals</h3>
-              <p className="text-2xl font-bold">{goals.length}</p>
-            </div>
-            <Target className="h-10 w-10" />
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Friends</h3>
-              <p className="text-2xl font-bold">{friends.filter(f => f.isFollowing).length}</p>
-            </div>
-            <Users className="h-10 w-10" />
-          </div>
+        <div className="flex items-center space-x-4">
+          <Heart className="h-6 w-6 text-gray-700" />
+          <MessageCircle className="h-6 w-6 text-gray-700" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center text-slate-800">
-            <TrendingUp className="mr-2 text-blue-600" />
-            Activity Feed
-          </h3>
-          {socialFeed.slice(0, 3).map((post) => (
-            <div key={post.id} className="border-l-4 border-blue-500 pl-4 mb-4 last:mb-0">
-              <div className="flex items-center mb-2">
-                <span className="text-2xl mr-2">{post.user.avatar}</span>
-                <div>
-                  <h4 className="font-semibold text-sm">{post.user.name}</h4>
-                  <p className="text-xs text-gray-500">{post.timeAgo}</p>
-                </div>
-              </div>
-              {post.type === 'workout' ? (
-                <div>
-                  <p className="font-medium">{post.content.name}</p>
-                  <p className="text-sm text-gray-600">{post.content.type} • {post.content.duration} min</p>
-                </div>
-              ) : (
-                <p className="text-sm">{post.content.text}</p>
-              )}
-              <div className="flex items-center mt-2 text-xs text-gray-500">
-                <Heart className="h-3 w-3 mr-1" />
-                {post.likes} likes
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center text-slate-800">
-            <CheckCircle className="mr-2 text-emerald-600" />
-            Today's Habits
-          </h3>
-          <div className="space-y-3">
-            {habits.map((habit) => (
-              <div key={habit.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <button 
-                    onClick={() => toggleHabit(habit.id)}
-                    className={`mr-3 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      habit.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 hover:border-emerald-400'
-                    }`}
-                  >
-                    {habit.completed && <CheckCircle className="h-4 w-4" />}
-                  </button>
-                  <div>
-                    <p className={`font-medium text-slate-700 ${habit.completed ? 'line-through text-slate-500' : ''}`}>
-                      {habit.name}
-                    </p>
-                    <p className="text-xs text-slate-500">{habit.streak} day streak</p>
+      {/* Stories */}
+      {showStories && (
+        <div className="border-b border-gray-100 px-4 py-3">
+          <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
+            {stories.map((story) => (
+              <div key={story.id} className="flex flex-col items-center space-y-1 flex-shrink-0">
+                <div className={`w-16 h-16 rounded-full p-0.5 ${
+                  story.hasNew ? 'bg-gradient-to-tr from-yellow-400 to-pink-600' : 'bg-gray-200'
+                }`}>
+                  <div className="w-full h-full bg-white rounded-full p-0.5">
+                    <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-2xl">
+                      {story.avatar}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <Zap className="h-4 w-4 text-amber-500 mr-1" />
-                  <span className="text-sm font-semibold text-slate-700">{habit.streak}</span>
-                </div>
+                <span className="text-xs text-gray-600 max-w-[60px] truncate">
+                  {story.isYours ? 'Your Story' : story.user}
+                </span>
               </div>
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
+      )}
 
-  const SocialView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h2 className="text-2xl font-bold mb-6 text-slate-800">Social Feed</h2>
-        
-        <div className="space-y-6">
-          {socialFeed.map((post) => (
-            <div key={post.id} className="border border-stone-200 rounded-lg p-6 bg-white">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <span className="text-3xl mr-3">{post.user.avatar}</span>
-                  <div>
-                    <h4 className="font-semibold text-slate-800">{post.user.name}</h4>
-                    <p className="text-sm text-slate-500">{post.user.username} • {post.timeAgo}</p>
-                  </div>
+      {/* Feed */}
+      <div className="pb-20">
+        {socialFeed.map((post) => (
+          <div key={post.id} className="border-b border-gray-100">
+            {/* Post Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                  {post.user.avatar}
                 </div>
-                <Share2 className="h-5 w-5 text-slate-400 cursor-pointer hover:text-slate-600" />
-              </div>
-              
-              {post.type === 'workout' ? (
-                <div className="bg-stone-50 rounded-lg p-4 mb-4 border border-stone-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-slate-800">{post.content.name}</h3>
-                    <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
-                      {post.content.type}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="flex items-center text-slate-600">
-                      <Clock className="mr-2 h-4 w-4" />
-                      {post.content.duration} minutes
-                    </p>
-                    {post.content.exercises && (
-                      <p className="text-slate-600">
-                        <strong>Exercises:</strong> {post.content.exercises}
-                      </p>
-                    )}
-                    {post.content.notes && (
-                      <p className="text-slate-600">
-                        <strong>Notes:</strong> {post.content.notes}
-                      </p>
-                    )}
-                  </div>
-                  <button 
-                    onClick={() => startTemplate(post.content)}
-                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors mt-3 flex items-center"
-                  >
-                    <Play className="mr-2 h-4 w-4" />
-                    Try This Workout
-                  </button>
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <p className="text-slate-800">{post.content.text}</p>
-                  {post.content.achievement && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center">
-                        <Award className="h-5 w-5 text-amber-600 mr-2" />
-                        <span className="font-semibold text-amber-800">{post.content.achievement}</span>
+                <div>
+                  <div className="flex items-center space-x-1">
+                    <span className="font-semibold text-sm">{post.user.username}</span>
+                    {post.user.isVerified && (
+                      <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-2 h-2 text-white fill-current" />
                       </div>
-                    </div>
+                    )}
+                  </div>
+                  {post.location && (
+                    <span className="text-xs text-gray-500">{post.location}</span>
                   )}
                 </div>
+              </div>
+              <MoreHorizontal className="h-5 w-5 text-gray-600" />
+            </div>
+
+            {/* Post Image */}
+            <div className="relative aspect-square bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+              {post.type === 'workout' ? (
+                <div className="text-center">
+                  <Dumbbell className="h-16 w-16 text-purple-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{post.content.workout}</h3>
+                  <div className="flex justify-center space-x-6">
+                    <div className="text-center">
+                      <Clock className="h-5 w-5 text-gray-600 mx-auto" />
+                      <span className="text-sm text-gray-600">{post.content.duration}</span>
+                    </div>
+                    <div className="text-center">
+                      <Zap className="h-5 w-5 text-orange-500 mx-auto" />
+                      <span className="text-sm text-gray-600">{post.content.calories}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <Trophy className="h-16 w-16 text-yellow-600 mx-auto mb-4" />
+                  <div className="bg-yellow-100 px-4 py-2 rounded-full">
+                    <span className="text-yellow-800 font-semibold">{post.content.achievement}</span>
+                  </div>
+                </div>
               )}
-              
-              <div className="flex items-center justify-between pt-4 border-t border-stone-200">
-                <button 
-                  onClick={() => toggleLike(post.id)}
-                  className={`flex items-center space-x-2 ${post.isLiked ? 'text-rose-500' : 'text-slate-500'} hover:text-rose-500 transition-colors`}
-                >
-                  <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                  <span>{post.likes} likes</span>
+            </div>
+
+            {/* Post Actions */}
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-4">
+                  <button onClick={() => toggleLike(post.id)}>
+                    <Heart className={`h-6 w-6 ${post.isLiked ? 'text-red-500 fill-current' : 'text-gray-700'}`} />
+                  </button>
+                  <MessageCircle className="h-6 w-6 text-gray-700" />
+                  <Send className="h-6 w-6 text-gray-700" />
+                </div>
+                <Bookmark className="h-6 w-6 text-gray-700" />
+              </div>
+
+              {/* Likes */}
+              <div className="mb-2">
+                <span className="font-semibold text-sm">{post.likes.toLocaleString()} likes</span>
+              </div>
+
+              {/* Caption */}
+              <div className="mb-2">
+                <span className="font-semibold text-sm mr-2">{post.user.username}</span>
+                <span className="text-sm">
+                  {post.type === 'workout' 
+                    ? `Crushed this ${post.content.workout.toLowerCase()}! ${post.content.exercises.slice(0, 3).join(', ')} 💪`
+                    : post.content.text
+                  }
+                </span>
+              </div>
+
+              {/* Comments */}
+              {post.comments > 0 && (
+                <button className="text-gray-500 text-sm mb-2">
+                  View all {post.comments} comments
                 </button>
-                <span className="text-slate-500 text-sm">Share workout</span>
+              )}
+
+              {/* Time */}
+              <div className="text-xs text-gray-500 uppercase">
+                {post.timeAgo} ago
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const AnalyticsView = () => (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <BarChart3 className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Workouts</h3>
-          <p className="text-3xl font-bold text-slate-800">{analyticsData.progressMetrics.totalWorkouts}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Clock className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Hours</h3>
-          <p className="text-3xl font-bold text-emerald-600">{analyticsData.progressMetrics.totalHours}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Weekly Average</h3>
-          <p className="text-3xl font-bold text-purple-600">{analyticsData.progressMetrics.averagePerWeek}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Star className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Consistency</h3>
-          <p className="text-3xl font-bold text-amber-600">{analyticsData.progressMetrics.consistencyScore}%</p>
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
-        <div className="space-y-3">
-          {analyticsData.weeklyWorkouts.map((week, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">{week.week}</span>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center">
-                  <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
-                  <span className="text-sm text-slate-600">{week.workouts} workouts</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 text-emerald-600 mr-1" />
-                  <span className="text-sm text-slate-600">{week.duration} min</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const TemplatesView = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Workout Templates</h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {workoutTemplates.map((template) => (
-          <div key={template.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-semibold text-slate-800">{template.name}</h3>
-                <p className="text-slate-600">by {template.creator}</p>
-              </div>
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                template.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-800' :
-                template.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-800' :
-                'bg-rose-100 text-rose-800'
-              }`}>
-                {template.difficulty}
-              </span>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center text-slate-600">
-                <Clock className="mr-2 h-4 w-4" />
-                {template.duration} minutes
-              </div>
-              <div className="space-y-2">
-                {template.exercises.slice(0, 3).map((exercise, index) => (
-                  <div key={index} className="text-sm bg-white rounded p-2 border border-stone-200">
-                    <span className="font-medium text-slate-700">{exercise.name}</span>
-                    {exercise.sets && exercise.reps && (
-                      <span className="text-slate-600 ml-2">
-                        {exercise.sets} sets × {exercise.reps} reps
-                      </span>
-                    )}
-                    {exercise.duration && (
-                      <span className="text-slate-600 ml-2">
-                        {exercise.duration}s
-                      </span>
-                    )}
-                  </div>
-                ))}
-                {template.exercises.length > 3 && (
-                  <div className="text-sm text-slate-500">
-                    +{template.exercises.length - 3} more exercises
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-1 mb-4">
-              {template.tags.map((tag, index) => (
-                <span key={index} className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded border">
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 text-sm text-slate-500">
-                <span className="flex items-center">
-                  <Heart className="h-4 w-4 mr-1" />
-                  {template.likes}
-                </span>
-                <span className="flex items-center">
-                  <Eye className="h-4 w-4 mr-1" />
-                  {template.uses} uses
-                </span>
-              </div>
-              <button 
-                onClick={() => startTemplate(template)}
-                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Use Template
-              </button>
             </div>
           </div>
         ))}
@@ -498,513 +235,316 @@ const FitnessTracker = () => {
     </div>
   );
 
-  const GoalsView = () => {
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newGoal, setNewGoal] = useState({
-      title: '',
-      description: '',
-      target: '',
-      deadline: ''
-    });
-
-    const handleAddGoal = () => {
-      if (newGoal.title && newGoal.target) {
-        addGoal(newGoal);
-        setNewGoal({ title: '', description: '', target: '', deadline: '' });
-        setShowAddForm(false);
-      }
-    };
-
-    const updateGoalProgress = (goalId, progress) => {
-      setGoals(goals.map(goal => 
-        goal.id === goalId ? {...goal, progress: Math.min(100, Math.max(0, progress))} : goal
-      ));
-    };
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Goals</h2>
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Goal
-          </button>
-        </div>
-
-        {showAddForm && (
-          <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Create New Goal</h3>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Goal title (e.g., Lose 20 pounds)"
-                value={newGoal.title}
-                onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
-                className="w-full border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-              <textarea
-                placeholder="Description (optional)"
-                value={newGoal.description}
-                onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
-                className="w-full border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-                rows="3"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Target (e.g., 150 lbs, 5K run)"
-                  value={newGoal.target}
-                  onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
-                  className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-                />
-                <input
-                  type="date"
-                  value={newGoal.deadline}
-                  onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
-                  className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-4">
-              <button 
-                onClick={handleAddGoal}
-                className="bg-slate-800 text-white px-6 py-2 rounded-lg hover:bg-slate-700 transition-colors"
-              >
-                Create Goal
-              </button>
-              <button 
-                onClick={() => setShowAddForm(false)}
-                className="bg-stone-300 text-slate-700 px-6 py-2 rounded-lg hover:bg-stone-400 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
+  // Search/Explore View
+  const ExploreView = () => (
+    <div className="max-w-lg mx-auto bg-white min-h-screen">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <div className="flex items-center space-x-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search workouts, people, gyms..."
+              className="w-full bg-gray-100 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
           </div>
-        )}
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {goals.map((goal) => (
-            <div key={goal.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-slate-800">{goal.title}</h3>
-                {goal.progress === 100 && (
-                  <Award className="h-6 w-6 text-amber-500" />
-                )}
+      {/* Trending Categories */}
+      <div className="px-4 py-4">
+        <h3 className="font-semibold mb-3">Trending Workouts</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { name: 'HIIT Training', posts: '1.2M', gradient: 'from-red-400 to-pink-600' },
+            { name: 'Yoga Flow', posts: '890K', gradient: 'from-green-400 to-blue-500' },
+            { name: 'Strength', posts: '2.1M', gradient: 'from-purple-400 to-pink-600' },
+            { name: 'Running', posts: '1.8M', gradient: 'from-yellow-400 to-orange-600' }
+          ].map((category, index) => (
+            <div key={index} className={`bg-gradient-to-br ${category.gradient} rounded-lg p-4 text-white`}>
+              <h4 className="font-semibold">{category.name}</h4>
+              <span className="text-sm opacity-90">{category.posts} posts</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Suggested People */}
+      <div className="px-4 py-4 border-t border-gray-100">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Suggested for you</h3>
+          <button className="text-blue-600 text-sm font-semibold">See All</button>
+        </div>
+        {friends.map((friend) => (
+          <div key={friend.id} className="flex items-center justify-between py-2">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                {friend.avatar}
               </div>
-              
-              {goal.description && (
-                <p className="text-slate-600 mb-4">{goal.description}</p>
-              )}
-              
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Target: {goal.target}</span>
-                  {goal.deadline && (
-                    <span className="text-slate-600">Due: {goal.deadline}</span>
+              <div>
+                <div className="flex items-center space-x-1">
+                  <span className="font-semibold text-sm">{friend.username}</span>
+                  {friend.isVerified && (
+                    <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-2 h-2 text-white fill-current" />
+                    </div>
                   )}
                 </div>
-                
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-slate-700">Progress</span>
-                    <span className="text-sm text-slate-600">{goal.progress}%</span>
-                  </div>
-                  <div className="bg-stone-200 rounded-full h-3">
-                    <div 
-                      className="bg-emerald-500 h-3 rounded-full transition-all duration-300"
-                      style={{ width: `${goal.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2 mt-3">
-                  <button 
-                    onClick={() => updateGoalProgress(goal.id, goal.progress + 10)}
-                    className="bg-emerald-600 text-white text-xs px-3 py-1 rounded hover:bg-emerald-700 transition-colors"
-                  >
-                    +10%
-                  </button>
-                  <button 
-                    onClick={() => updateGoalProgress(goal.id, goal.progress - 10)}
-                    className="bg-rose-600 text-white text-xs px-3 py-1 rounded hover:bg-rose-700 transition-colors"
-                  >
-                    -10%
-                  </button>
-                </div>
+                <span className="text-xs text-gray-500">Followed by {friend.mutualFriends} others</span>
               </div>
             </div>
-          ))}
-        </div>
-
-        {goals.length === 0 && !showAddForm && (
-          <div className="text-center py-12">
-            <Target className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-            <h3 className="text-lg font-semibold text-slate-600 mb-2">No goals set yet</h3>
-            <p className="text-slate-500">Create your first goal to start tracking your progress!</p>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const FriendsView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">Find Friends</h2>
-          <div className="flex items-center space-x-2">
-            <Search className="h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {friends.map((friend) => (
-            <div key={friend.id} className="flex items-center justify-between p-4 border border-stone-200 rounded-lg bg-white">
-              <div className="flex items-center space-x-4">
-                <span className="text-4xl">{friend.avatar}</span>
-                <div>
-                  <h3 className="font-semibold text-slate-800">{friend.name}</h3>
-                  <p className="text-slate-600">{friend.username}</p>
-                  <p className="text-sm text-slate-500">
-                    {friend.followers} followers • {friend.following} following
-                  </p>
-                </div>
-              </div>
-              <button className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-                friend.isFollowing 
-                  ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
-                  : 'bg-slate-800 text-white hover:bg-slate-700'
-              }`}>
-                {friend.isFollowing ? (
-                  <>
-                    <Users className="mr-2 h-4 w-4" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Follow
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProfileView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex items-center space-x-6 mb-6">
-          <div className="text-6xl">{userProfile.avatar}</div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800">{userProfile.name}</h2>
-            <p className="text-slate-600">{userProfile.username}</p>
-            <p className="text-slate-700 mt-2">{userProfile.bio}</p>
-          </div>
-          <button className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            Edit Profile
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-5 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-slate-700">{userProfile.workoutsCompleted}</p>
-            <p className="text-sm text-slate-600">Workouts</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-emerald-600">{userProfile.goalsAchieved}</p>
-            <p className="text-sm text-slate-600">Goals</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-purple-600">{userProfile.followers}</p>
-            <p className="text-sm text-slate-600">Followers</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-amber-600">{userProfile.following}</p>
-            <p className="text-sm text-slate-600">Following</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-rose-600">{userProfile.currentStreak}</p>
-            <p className="text-sm text-slate-600">Streak</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Recent Activity</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {workouts.slice(-4).map((workout) => (
-            <div key={workout.id} className="border border-slate-200 rounded-lg p-4 bg-white">
-              <h4 className="font-semibold">{workout.name}</h4>
-              <p className="text-sm text-slate-600">{workout.type} • {workout.duration} min</p>
-              <p className="text-xs text-slate-500">{workout.date}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const WorkoutView = () => {
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newWorkout, setNewWorkout] = useState({
-      name: '',
-      type: 'Strength',
-      duration: '',
-      exercises: '',
-      notes: ''
-    });
-
-    const handleAddWorkout = () => {
-      if (newWorkout.name && newWorkout.duration) {
-        addWorkout(newWorkout);
-        setNewWorkout({ name: '', type: 'Strength', duration: '', exercises: '', notes: '' });
-        setShowAddForm(false);
-      }
-    };
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Workouts</h2>
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Log Workout
-          </button>
-        </div>
-
-        {showAddForm && (
-          <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Log New Workout</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Workout name"
-                value={newWorkout.name}
-                onChange={(e) => setNewWorkout({...newWorkout, name: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-              <select
-                value={newWorkout.type}
-                onChange={(e) => setNewWorkout({...newWorkout, type: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              >
-                <option value="Strength">Strength Training</option>
-                <option value="Cardio">Cardio</option>
-                <option value="Flexibility">Flexibility/Yoga</option>
-                <option value="Sports">Sports</option>
-                <option value="Other">Other</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Duration (minutes)"
-                value={newWorkout.duration}
-                onChange={(e) => setNewWorkout({...newWorkout, duration: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Key exercises"
-                value={newWorkout.exercises}
-                onChange={(e) => setNewWorkout({...newWorkout, exercises: e.target.value})}
-                className="border border-stone-300 rounded-lg p-3 bg-white focus:border-slate-500 focus:outline-none"
-              />
-            </div>
-            <textarea
-              placeholder="Notes (optional)"
-              value={newWorkout.notes}
-              onChange={(e) => setNewWorkout({...newWorkout, notes: e.target.value})}
-              className="w-full border border-stone-300 rounded-lg p-3 mt-4 bg-white focus:border-slate-500 focus:outline-none"
-              rows="3"
-            />
-            <div className="flex gap-3 mt-4">
-              <button 
-                onClick={handleAddWorkout}
-                className="bg-slate-800 text-white px-6 py-2 rounded-lg hover:bg-slate-700 transition-colors"
-              >
-                Save & Share Workout
-              </button>
-              <button 
-                onClick={() => setShowAddForm(false)}
-                className="bg-stone-300 text-slate-700 px-6 py-2 rounded-lg hover:bg-stone-400 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workouts.map((workout) => (
-            <div key={workout.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-slate-800">{workout.name}</h3>
-                <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
-                  {workout.type}
-                </span>
-              </div>
-              <div className="space-y-2">
-                <p className="flex items-center text-slate-600">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {workout.duration} minutes
-                </p>
-                {workout.exercises && (
-                  <p className="text-slate-600">
-                    <strong>Exercises:</strong> {workout.exercises}
-                  </p>
-                )}
-                {workout.notes && (
-                  <p className="text-slate-600">
-                    <strong>Notes:</strong> {workout.notes}
-                  </p>
-                )}
-                <p className="text-sm text-slate-500">{workout.date}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {workouts.length === 0 && !showAddForm && (
-          <div className="text-center py-12">
-            <Dumbbell className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-            <h3 className="text-lg font-semibold text-slate-600 mb-2">No workouts logged yet</h3>
-            <p className="text-slate-500">Start logging your workouts to share with friends!</p>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const AICoachView = () => (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-stone-50 rounded-xl shadow-lg h-96 flex flex-col border border-stone-200">
-        <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white p-4 rounded-t-xl">
-          <h2 className="text-xl font-bold flex items-center">
-            <MessageCircle className="mr-2" />
-            AI Fitness Coach
-          </h2>
-          <p className="text-stone-200 text-sm">Get personalized tips, workout suggestions, and motivation!</p>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-          {chatMessages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                msg.type === 'user' 
-                  ? 'bg-slate-800 text-white' 
-                  : 'bg-stone-100 text-slate-800 border border-stone-200'
-              }`}>
-                <p className="text-sm">{msg.message}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="p-4 border-t border-stone-200 bg-white rounded-b-xl">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Ask about workouts, nutrition, goals, or templates..."
-              className="flex-1 border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
-            />
-            <button 
-              onClick={sendMessage}
-              className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors"
-            >
-              Send
+            <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold">
+              Follow
             </button>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Create Post View
+  const CreateView = () => (
+    <div className="max-w-lg mx-auto bg-white min-h-screen">
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+        <button className="text-gray-600">Cancel</button>
+        <h2 className="font-semibold">New Workout</h2>
+        <button className="text-blue-600 font-semibold">Share</button>
+      </div>
+
+      <div className="p-4 space-y-6">
+        {/* Quick Workout Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { name: 'Quick HIIT', icon: Zap, color: 'from-red-400 to-pink-600' },
+            { name: 'Strength', icon: Dumbbell, color: 'from-purple-400 to-purple-600' },
+            { name: 'Cardio', icon: Heart, color: 'from-green-400 to-green-600' },
+            { name: 'Yoga', icon: User, color: 'from-blue-400 to-blue-600' }
+          ].map((workout, index) => (
+            <button key={index} className={`bg-gradient-to-br ${workout.color} rounded-xl p-6 text-white text-center`}>
+              <workout.icon className="h-8 w-8 mx-auto mb-2" />
+              <span className="font-semibold">{workout.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Workout Form */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Log Custom Workout</h3>
+          <input 
+            type="text" 
+            placeholder="Workout name"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
+          />
+          <textarea 
+            placeholder="What did you do today? Share your wins! 💪"
+            rows="4"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input 
+              type="number" 
+              placeholder="Duration (min)"
+              className="border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
+            />
+            <input 
+              type="number" 
+              placeholder="Calories burned"
+              className="border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Profile View (Instagram-style)
+  const ProfileView = () => (
+    <div className="max-w-lg mx-auto bg-white min-h-screen">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+        <div className="flex items-center space-x-2">
+          <span className="font-semibold text-lg">{userProfile.username}</span>
+          {userProfile.isVerified && (
+            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-3 h-3 text-white fill-current" />
+            </div>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          <PlusSquare className="h-6 w-6 text-gray-700" />
+          <Settings className="h-6 w-6 text-gray-700" />
+        </div>
+      </div>
+
+      {/* Profile Info */}
+      <div className="px-4 py-6">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 p-0.5">
+            <div className="w-full h-full bg-white rounded-full p-1">
+              <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-3xl">
+                {userProfile.avatar}
+              </div>
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="font-bold text-lg">{userProfile.posts}</div>
+                <div className="text-gray-600 text-sm">Posts</div>
+              </div>
+              <div>
+                <div className="font-bold text-lg">{userProfile.followers.toLocaleString()}</div>
+                <div className="text-gray-600 text-sm">Followers</div>
+              </div>
+              <div>
+                <div className="font-bold text-lg">{userProfile.following}</div>
+                <div className="text-gray-600 text-sm">Following</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="font-bold">{userProfile.name}</h2>
+          <p className="text-gray-700 text-sm mt-1">{userProfile.bio}</p>
+          {userProfile.website && (
+            <a href="#" className="text-blue-600 text-sm">{userProfile.website}</a>
+          )}
+        </div>
+
+        <div className="flex space-x-2">
+          <button className="flex-1 bg-gray-200 text-gray-900 py-2 px-4 rounded-lg font-semibold text-sm">
+            Edit Profile
+          </button>
+          <button className="flex-1 bg-gray-200 text-gray-900 py-2 px-4 rounded-lg font-semibold text-sm">
+            Share Profile
+          </button>
+        </div>
+      </div>
+
+      {/* Highlights */}
+      <div className="px-4 pb-4">
+        <div className="flex space-x-4 overflow-x-auto">
+          {['Workouts', 'Progress', 'Nutrition'].map((highlight, index) => (
+            <div key={index} className="flex flex-col items-center space-y-1 flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center">
+                <span className="text-2xl">
+                  {index === 0 ? '💪' : index === 1 ? '📈' : '🥗'}
+                </span>
+              </div>
+              <span className="text-xs text-gray-600">{highlight}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Post Grid */}
+      <div className="border-t border-gray-200">
+        <div className="flex">
+          <button className="flex-1 py-3 border-b-2 border-gray-900">
+            <Grid className="h-6 w-6 mx-auto text-gray-900" />
+          </button>
+          <button className="flex-1 py-3 border-b-2 border-transparent">
+            <List className="h-6 w-6 mx-auto text-gray-400" />
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-1">
+          {Array.from({ length: 9 }, (_, i) => (
+            <div key={i} className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+              <span className="text-2xl">
+                {i % 3 === 0 ? '💪' : i % 3 === 1 ? '🏃‍♀️' : '🚴‍♂️'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Activity/Notifications View
+  const ActivityView = () => (
+    <div className="max-w-lg mx-auto bg-white min-h-screen">
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <h2 className="font-bold text-lg">Activity</h2>
+      </div>
+      
+      <div className="p-4">
+        <div className="space-y-4">
+          {[
+            { user: 'Sarah', action: 'liked your workout', time: '2m', avatar: '👩‍💪' },
+            { user: 'Mike', action: 'started following you', time: '1h', avatar: '💪' },
+            { user: 'Emma', action: 'commented on your post', time: '3h', avatar: '🏃‍♀️' },
+            { user: 'Alex', action: 'shared your workout', time: '5h', avatar: '🚴‍♂️' }
+          ].map((notification, index) => (
+            <div key={index} className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                {notification.avatar}
+              </div>
+              <div className="flex-1">
+                <span className="text-sm">
+                  <span className="font-semibold">{notification.user}</span> {notification.action}
+                </span>
+                <div className="text-xs text-gray-500">{notification.time}</div>
+              </div>
+              {notification.action.includes('following') ? (
+                <button className="bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-semibold">
+                  Follow Back
+                </button>
+              ) : (
+                <Heart className="h-8 w-8 text-red-500" />
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 
   const tabs = [
-    { id: 'dashboard', name: 'Dashboard', icon: TrendingUp },
-    { id: 'social', name: 'Social', icon: Users },
-    { id: 'analytics', name: 'Analytics', icon: BarChart3 },
-    { id: 'templates', name: 'Templates', icon: Bookmark },
-    { id: 'workouts', name: 'Workouts', icon: Dumbbell },
-    { id: 'goals', name: 'Goals', icon: Target },
-    { id: 'friends', name: 'Friends', icon: UserPlus },
-    { id: 'profile', name: 'Profile', icon: User },
-    { id: 'coach', name: 'AI Coach', icon: MessageCircle }
+    { id: 'home', name: 'Home', icon: Home },
+    { id: 'explore', name: 'Explore', icon: Compass },
+    { id: 'create', name: 'Create', icon: PlusSquare },
+    { id: 'activity', name: 'Activity', icon: Heart },
+    { id: 'profile', name: 'Profile', icon: User }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200">
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 shadow-lg border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-amber-400 bg-clip-text text-transparent">
-              FitTrack Social
-            </h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-amber-400" />
-                <span className="text-sm font-semibold text-stone-200">{userProfile.currentStreak} day streak</span>
-              </div>
-              <span className="text-2xl">{userProfile.avatar}</span>
-              <div className="text-sm">
-                <p className="font-semibold text-white">{userProfile.name}</p>
-                <p className="text-stone-300">{userProfile.username}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Main Content */}
+      <div className="pb-16">
+        {activeTab === 'home' && <HomeView />}
+        {activeTab === 'explore' && <ExploreView />}
+        {activeTab === 'create' && <CreateView />}
+        {activeTab === 'activity' && <ActivityView />}
+        {activeTab === 'profile' && <ProfileView />}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-wrap gap-1 mb-6 bg-white rounded-lg p-1 shadow-lg overflow-x-auto border border-stone-200">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-slate-800 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
-                }`}
-              >
-                <Icon className="h-4 w-4 mr-2" />
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="transition-all duration-300">
-          {activeTab === 'dashboard' && <DashboardView />}
-          {activeTab === 'social' && <SocialView />}
-          {activeTab === 'analytics' && <AnalyticsView />}
-          {activeTab === 'templates' && <TemplatesView />}
-          {activeTab === 'workouts' && <WorkoutView />}
-          {activeTab === 'goals' && <GoalsView />}
-          {activeTab === 'friends' && <FriendsView />}
-          {activeTab === 'profile' && <ProfileView />}
-          {activeTab === 'coach' && <AICoachView />}
+      {/* Bottom Navigation (Instagram-style) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-around py-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="flex flex-col items-center py-2 px-3"
+                >
+                  <Icon 
+                    className={`h-6 w-6 ${
+                      activeTab === tab.id 
+                        ? 'text-gray-900' 
+                        : 'text-gray-400'
+                    }`} 
+                    fill={activeTab === tab.id ? 'currentColor' : 'none'}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
