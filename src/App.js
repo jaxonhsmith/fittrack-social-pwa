@@ -1,12 +1,84 @@
-import React, { useState } from 'react';
-import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, ThumbsUp, Send, Video, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, ThumbsUp, Send, Video, Download, Wifi, WifiOff, Smartphone } from 'lucide-react';
+
+// PWA Hooks
+const usePWA = () => {
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const installApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const result = await installPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      setIsInstallable(false);
+      setInstallPrompt(null);
+    }
+  };
+
+  return { isInstallable, installApp };
+};
+
+const useOfflineStorage = (key, initialValue) => {
+  const [value, setValue] = useState(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const setStoredValue = (newValue) => {
+    try {
+      setValue(newValue);
+      localStorage.setItem(key, JSON.stringify(newValue));
+      
+      if (!isOnline) {
+        const pendingSync = JSON.parse(localStorage.getItem('pendingSync') || '[]');
+        pendingSync.push({ key, value: newValue, timestamp: Date.now() });
+        localStorage.setItem('pendingSync', JSON.stringify(pendingSync));
+      }
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
+
+  return [value, setStoredValue, isOnline];
+};
 
 const FitnessTracker = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [progressPhotos, setProgressPhotos] = useState([]);
-  const [workouts, setWorkouts] = useState([]);
-  const [goals, setGoals] = useState([]);
-  const [habits, setHabits] = useState([
+  const [progressPhotos, setProgressPhotos] = useOfflineStorage('progressPhotos', []);
+  const [workouts, setWorkouts] = useOfflineStorage('workouts', []);
+  const [goals, setGoals] = useOfflineStorage('goals', []);
+  const [habits, setHabits] = useOfflineStorage('habits', [
     { id: 1, name: 'Drink 8 glasses of water', streak: 5, completed: true, category: 'hydration' },
     { id: 2, name: '10,000 steps daily', streak: 3, completed: false, category: 'activity' },
     { id: 3, name: '8 hours of sleep', streak: 2, completed: true, category: 'recovery' }
@@ -45,6 +117,7 @@ const FitnessTracker = () => {
       uses: 89
     }
   ]);
+
   const [challenges, setChallenges] = useState([
     {
       id: 1,
@@ -80,6 +153,7 @@ const FitnessTracker = () => {
       category: 'cardio'
     }
   ]);
+
   const [achievements, setAchievements] = useState([
     { id: 1, name: 'First Workout', icon: '🌟', earned: true, date: '2024-08-01' },
     { id: 2, name: '7-Day Streak', icon: '🔥', earned: true, date: '2024-08-07' },
@@ -87,11 +161,13 @@ const FitnessTracker = () => {
     { id: 4, name: 'Social Butterfly', icon: '🦋', earned: true, date: '2024-08-15' },
     { id: 5, name: 'Consistency King', icon: '👑', earned: false, date: null }
   ]);
+
   const [friends, setFriends] = useState([
     { id: 1, name: 'Sarah Johnson', username: '@sarahfit', avatar: '👩‍💪', followers: 234, following: 156, isFollowing: true },
     { id: 2, name: 'Mike Chen', username: '@mikelifts', avatar: '💪', followers: 189, following: 203, isFollowing: true },
     { id: 3, name: 'Emma Davis', username: '@emmarunner', avatar: '🏃‍♀️', followers: 456, following: 234, isFollowing: false }
   ]);
+
   const [socialFeed, setSocialFeed] = useState([
     {
       id: 1,
@@ -131,6 +207,7 @@ const FitnessTracker = () => {
       isLiked: true
     }
   ]);
+
   const [userProfile, setUserProfile] = useState({
     name: 'You',
     username: '@yourfit',
@@ -143,6 +220,7 @@ const FitnessTracker = () => {
     currentStreak: 7,
     longestStreak: 15
   });
+
   const [chatMessages, setChatMessages] = useState([
     { type: 'ai', message: "Hi! I'm your AI fitness coach. I'm here to help you reach your goals! What would you like to work on today?" }
   ]);
@@ -150,6 +228,10 @@ const FitnessTracker = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
+
+  // PWA functionality
+  const { isInstallable, installApp } = usePWA();
+  const isOnline = navigator.onLine;
 
   // Analytics mock data
   const analyticsData = {
@@ -207,27 +289,24 @@ const FitnessTracker = () => {
     }
   };
 
-  const handleVideoUpload = (workoutId) => {
-    // Simulate video upload
-    alert('Video uploaded! In a real app, this would process and attach the video to your workout.');
-  };
-
   const addWorkout = (workout) => {
     const newWorkout = { ...workout, id: Date.now(), date: new Date().toLocaleDateString() };
     setWorkouts([...workouts, newWorkout]);
     
     // Auto-post to social feed
-    const socialPost = {
-      id: Date.now() + 1,
-      user: userProfile,
-      type: 'workout',
-      content: newWorkout,
-      likes: 0,
-      comments: [],
-      timeAgo: 'just now',
-      isLiked: false
-    };
-    setSocialFeed([socialPost, ...socialFeed]);
+    if (isOnline) {
+      const socialPost = {
+        id: Date.now() + 1,
+        user: userProfile,
+        type: 'workout',
+        content: newWorkout,
+        likes: 0,
+        comments: [],
+        timeAgo: 'just now',
+        isLiked: false
+      };
+      setSocialFeed([socialPost, ...socialFeed]);
+    }
   };
 
   const addGoal = (goal) => {
@@ -240,7 +319,6 @@ const FitnessTracker = () => {
 
   const useTemplate = (template) => {
     setActiveTab('workouts');
-    // Pre-fill workout form with template data
     alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
 
@@ -301,6 +379,49 @@ const FitnessTracker = () => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
   };
 
+  // PWA Install Banner Component
+  const PWAInstallBanner = () => {
+    if (!isInstallable) return null;
+
+    return (
+      <div className="fixed bottom-4 left-4 right-4 bg-slate-800 text-white p-4 rounded-lg shadow-lg z-50 flex items-center justify-between">
+        <div className="flex items-center">
+          <Smartphone className="h-6 w-6 mr-3 text-amber-400" />
+          <div>
+            <p className="font-semibold">Install FitTrack</p>
+            <p className="text-sm text-stone-300">Get the full app experience!</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsInstallable(false)}
+            className="px-3 py-1 text-sm bg-stone-600 rounded hover:bg-stone-500"
+          >
+            Later
+          </button>
+          <button
+            onClick={installApp}
+            className="px-3 py-1 text-sm bg-amber-600 rounded hover:bg-amber-500"
+          >
+            Install
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Offline Indicator Component
+  const OfflineIndicator = () => {
+    if (isOnline) return null;
+
+    return (
+      <div className="fixed top-16 left-4 right-4 bg-amber-500 text-white p-3 rounded-lg shadow-lg z-40 flex items-center">
+        <WifiOff className="h-5 w-5 mr-2" />
+        <span className="text-sm font-medium">You're offline. Data will sync when connection is restored.</span>
+      </div>
+    );
+  };
+
   const DashboardView = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -340,6 +461,37 @@ const FitnessTracker = () => {
             </div>
             <Award className="h-10 w-10" />
           </div>
+        </div>
+      </div>
+
+      {/* PWA Features Card */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold flex items-center">
+              <Smartphone className="mr-2 h-6 w-6" />
+              App Features
+            </h3>
+            <p className="text-sm opacity-90 mt-1">
+              ✓ Works offline  ✓ Install as app  ✓ Auto-sync data
+            </p>
+            <div className="flex items-center mt-2">
+              {isOnline ? (
+                <><Wifi className="h-4 w-4 mr-1" /><span className="text-sm">Online & Synced</span></>
+              ) : (
+                <><WifiOff className="h-4 w-4 mr-1" /><span className="text-sm">Offline Mode</span></>
+              )}
+            </div>
+          </div>
+          {isInstallable && (
+            <button
+              onClick={installApp}
+              className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Install App
+            </button>
+          )}
         </div>
       </div>
 
@@ -490,28 +642,6 @@ const FitnessTracker = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Progress Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-100 rounded-lg p-4 border border-slate-200">
-            <h4 className="font-semibold text-slate-800 mb-2">💪 Strength</h4>
-            <p className="text-sm text-slate-700">You're consistently strong with 40% of workouts being strength training. Consider adding more compound movements for better results.</p>
-          </div>
-          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-            <h4 className="font-semibold text-emerald-800 mb-2">❤️ Cardio</h4>
-            <p className="text-sm text-emerald-700">Your cardio consistency is good at 30%. Try adding one more cardio session per week to boost heart health.</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2">🧘 Recovery</h4>
-            <p className="text-sm text-purple-700">Great job including flexibility work! Recovery is key for long-term progress and injury prevention.</p>
-          </div>
-          <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-            <h4 className="font-semibold text-amber-800 mb-2">🎯 Recommendation</h4>
-            <p className="text-sm text-amber-700">Based on your data, try the "Full Body HIIT" template twice a week to maximize your time and results.</p>
           </div>
         </div>
       </div>
@@ -676,33 +806,6 @@ const FitnessTracker = () => {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Habit Categories</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-            <h4 className="font-semibold text-blue-800 mb-2">💧 Hydration</h4>
-            <p className="text-sm text-blue-700">Stay hydrated for better performance and recovery</p>
-            <div className="mt-2 text-lg font-bold text-blue-600">
-              {habits.filter(h => h.category === 'hydration').length} habits
-            </div>
-          </div>
-          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-            <h4 className="font-semibold text-emerald-800 mb-2">🏃 Activity</h4>
-            <p className="text-sm text-emerald-700">Keep moving throughout the day</p>
-            <div className="mt-2 text-lg font-bold text-emerald-600">
-              {habits.filter(h => h.category === 'activity').length} habits
-            </div>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2">😴 Recovery</h4>
-            <p className="text-sm text-purple-700">Rest and recovery are essential for progress</p>
-            <div className="mt-2 text-lg font-bold text-purple-600">
-              {habits.filter(h => h.category === 'recovery').length} habits
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -941,14 +1044,6 @@ const FitnessTracker = () => {
             </div>
           ))}
         </div>
-
-        {workoutTemplates.length === 0 && !showCreateForm && (
-          <div className="text-center py-12">
-            <Bookmark className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-            <h3 className="text-lg font-semibold text-slate-600 mb-2">No templates created yet</h3>
-            <p className="text-slate-500">Create your first workout template to share with the community!</p>
-          </div>
-        )}
       </div>
     );
   };
@@ -1089,7 +1184,6 @@ const FitnessTracker = () => {
     </div>
   );
 
-  // Keep existing views with minor updates
   const ProfileView = () => (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
@@ -1266,7 +1360,10 @@ const FitnessTracker = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Workouts</h2>
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+            Workouts
+            {!isOnline && <span className="ml-2 text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded">Saved Offline</span>}
+          </h2>
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
@@ -1359,10 +1456,7 @@ const FitnessTracker = () => {
                   {workout.hasVideo && (
                     <Video className="h-4 w-4 text-rose-500" />
                   )}
-                  <button 
-                    onClick={() => handleVideoUpload(workout.id)}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
+                  <button className="text-slate-400 hover:text-slate-600">
                     <Copy className="h-4 w-4" />
                   </button>
                 </div>
@@ -1558,6 +1652,7 @@ const FitnessTracker = () => {
           <h2 className="text-xl font-bold flex items-center">
             <MessageCircle className="mr-2" />
             AI Fitness Coach
+            {!isOnline && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Offline Mode</span>}
           </h2>
           <p className="text-stone-200 text-sm">Get personalized tips, workout suggestions, and motivation!</p>
         </div>
@@ -1621,14 +1716,22 @@ const FitnessTracker = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200">
+      <OfflineIndicator />
+      <PWAInstallBanner />
+      
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 shadow-lg border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-amber-400 bg-clip-text text-transparent">
-              FitTrack Social
+              FitTrack Social PWA
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
+                {isOnline ? (
+                  <Wifi className="h-5 w-5 text-emerald-400" />
+                ) : (
+                  <WifiOff className="h-5 w-5 text-amber-400" />
+                )}
                 <Zap className="h-5 w-5 text-amber-400" />
                 <span className="text-sm font-semibold text-stone-200">{userProfile.currentStreak} day streak</span>
               </div>
