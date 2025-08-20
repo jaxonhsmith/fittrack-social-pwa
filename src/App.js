@@ -1,232 +1,264 @@
 import React, { useState } from 'react';
-import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send, Home, Compass, PlusSquare, MoreHorizontal, Grid, List } from 'lucide-react';
+import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send, Home, Compass, PlusSquare, MoreHorizontal, Grid, List, Bell, Map, Coffee } from 'lucide-react';
 
 const FitnessTracker = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('feed');
   const [workouts, setWorkouts] = useState([]);
-  const [goals, setGoals] = useState([]);
-  const [showStories, setShowStories] = useState(true);
-
-  // Stories data
-  const [stories, setStories] = useState([
-    { id: 1, user: 'You', avatar: '🔥', hasNew: true, isYours: true },
-    { id: 2, user: 'Sarah', avatar: '👩‍💪', hasNew: true, isYours: false },
-    { id: 3, user: 'Mike', avatar: '💪', hasNew: true, isYours: false },
-    { id: 4, user: 'Emma', avatar: '🏃‍♀️', hasNew: false, isYours: false },
-    { id: 5, user: 'Alex', avatar: '🚴‍♂️', hasNew: true, isYours: false },
-  ]);
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const [socialFeed, setSocialFeed] = useState([
     {
       id: 1,
-      user: { name: 'Sarah Johnson', username: 'sarahfit', avatar: '👩‍💪', isVerified: true },
-      type: 'workout',
+      user: { name: 'Alex Thunder', username: 'alexthunder', avatar: '⚡', level: 'Elite', streak: 15 },
+      type: 'challenge_complete',
       content: {
-        image: '/api/placeholder/400/300',
-        workout: 'Morning HIIT Session',
-        duration: '25 min',
-        calories: '340 cal',
-        exercises: ['Burpees', 'Mountain Climbers', 'Jump Squats', 'Push-ups']
+        challenge: '30-Day Push-up Challenge',
+        achievement: 'Completed 1,500 push-ups this month!',
+        progress: 100,
+        badge: '🏆'
       },
-      likes: 127,
-      comments: 23,
+      energy: 95,
+      cheers: 234,
+      comments: 67,
       timeAgo: '2h',
-      isLiked: false,
-      location: 'Gold\'s Gym Downtown'
+      isCheered: false
     },
     {
       id: 2,
-      user: { name: 'Mike Chen', username: 'mikelifts', avatar: '💪', isVerified: false },
-      type: 'progress',
+      user: { name: 'Maya Flow', username: 'mayaflow', avatar: '🌸', level: 'Warrior', streak: 8 },
+      type: 'workout_session',
       content: {
-        image: '/api/placeholder/400/300',
-        text: 'New PR! 225lb deadlift 💪 6 months of consistent training paying off!',
-        achievement: 'Personal Record'
+        workout: 'Sunrise Yoga Flow',
+        duration: '45 min',
+        intensity: 'Medium',
+        mood: 'Zen',
+        location: 'Beach Pier'
       },
-      likes: 89,
-      comments: 15,
+      energy: 78,
+      cheers: 156,
+      comments: 23,
       timeAgo: '4h',
-      isLiked: true,
-      location: 'Fitness First'
+      isCheered: true
     },
     {
       id: 3,
-      user: { name: 'Emma Davis', username: 'emmarunner', avatar: '🏃‍♀️', isVerified: true },
-      type: 'workout',
+      user: { name: 'Rico Beast', username: 'ricobeast', avatar: '🔥', level: 'Champion', streak: 22 },
+      type: 'personal_record',
       content: {
-        image: '/api/placeholder/400/300',
-        workout: '5K Morning Run',
-        duration: '28 min',
-        calories: '420 cal',
-        exercises: ['5K Run', 'Cool Down Stretch']
+        exercise: 'Deadlift',
+        newRecord: '315 lbs',
+        improvement: '+25 lbs',
+        celebration: '🎉'
       },
-      likes: 156,
-      comments: 31,
+      energy: 120,
+      cheers: 389,
+      comments: 91,
       timeAgo: '6h',
-      isLiked: false,
-      location: 'Central Park'
+      isCheered: false
     }
   ]);
 
   const [userProfile, setUserProfile] = useState({
     name: 'You',
-    username: 'yourfitness',
-    bio: 'Fitness enthusiast 💪 | Transform your body, transform your life ✨ | DM for workout tips 📩',
-    avatar: '🔥',
-    followers: 1247,
-    following: 892,
-    posts: 156,
-    isVerified: false,
-    website: 'linktr.ee/yourfitness'
+    username: 'yourjourney',
+    avatar: '🚀',
+    level: 'Rising Star',
+    streak: 12,
+    energy: 85,
+    tribe: 127,
+    following: 89,
+    challenges: 5
   });
 
-  const [friends, setFriends] = useState([
-    { id: 1, name: 'Sarah Johnson', username: 'sarahfit', avatar: '👩‍💪', isVerified: true, mutualFriends: 12 },
-    { id: 2, name: 'Mike Chen', username: 'mikelifts', avatar: '💪', isVerified: false, mutualFriends: 8 },
-    { id: 3, name: 'Emma Davis', username: 'emmarunner', avatar: '🏃‍♀️', isVerified: true, mutualFriends: 15 }
+  const [quickActions, setQuickActions] = useState([
+    { id: 1, name: 'Log Workout', icon: Dumbbell, color: 'from-orange-400 to-red-500', action: 'workout' },
+    { id: 2, name: 'Join Challenge', icon: Trophy, color: 'from-purple-400 to-pink-500', action: 'challenge' },
+    { id: 3, name: 'Find Buddy', icon: Users, color: 'from-green-400 to-blue-500', action: 'buddy' },
+    { id: 4, name: 'Share Win', icon: Star, color: 'from-yellow-400 to-orange-500', action: 'share' }
   ]);
 
-  const toggleLike = (postId) => {
+  const toggleCheer = (postId) => {
     setSocialFeed(socialFeed.map(post => 
       post.id === postId 
-        ? { ...post, likes: post.isLiked ? post.likes - 1 : post.likes + 1, isLiked: !post.isLiked }
+        ? { ...post, cheers: post.isCheered ? post.cheers - 1 : post.cheers + 1, isCheered: !post.isCheered }
         : post
     ));
   };
 
-  // Home Feed View (Instagram-style)
-  const HomeView = () => (
-    <div className="max-w-lg mx-auto bg-white min-h-screen">
+  // Main Feed View
+  const FeedView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
-        <div className="flex items-center">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            FitGram
-          </h1>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Heart className="h-6 w-6 text-gray-700" />
-          <MessageCircle className="h-6 w-6 text-gray-700" />
+      <div className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                FitTribe
+              </h1>
+              <p className="text-sm text-gray-500">Your fitness community</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Bell className="h-6 w-6 text-gray-600" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full"></div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center text-white font-bold">
+                {userProfile.avatar}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Stories */}
-      {showStories && (
-        <div className="border-b border-gray-100 px-4 py-3">
-          <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
-            {stories.map((story) => (
-              <div key={story.id} className="flex flex-col items-center space-y-1 flex-shrink-0">
-                <div className={`w-16 h-16 rounded-full p-0.5 ${
-                  story.hasNew ? 'bg-gradient-to-tr from-yellow-400 to-pink-600' : 'bg-gray-200'
-                }`}>
-                  <div className="w-full h-full bg-white rounded-full p-0.5">
-                    <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-2xl">
-                      {story.avatar}
+      {/* Quick Actions */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {quickActions.map((action) => (
+            <button key={action.id} className={`bg-gradient-to-br ${action.color} rounded-2xl p-4 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105`}>
+              <action.icon className="h-6 w-6 mb-2" />
+              <span className="text-sm font-semibold">{action.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Activity Filters */}
+      <div className="max-w-2xl mx-auto px-4 mb-6">
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {['all', 'workouts', 'challenges', 'records', 'buddies'].map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                activeFilter === filter
+                  ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+              }`}
+            >
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Feed Posts */}
+      <div className="max-w-2xl mx-auto px-4 space-y-6 pb-8">
+        {socialFeed.map((post) => (
+          <div key={post.id} className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+            {/* Post Header */}
+            <div className="p-6 pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center text-white text-xl">
+                      {post.user.avatar}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center border-2 border-white">
+                      <span className="text-xs">🔥</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">{post.user.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-purple-600 font-medium">{post.user.level}</span>
+                      <span className="text-sm text-gray-500">•</span>
+                      <span className="text-sm text-orange-500">🔥 {post.user.streak} day streak</span>
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-gray-600 max-w-[60px] truncate">
-                  {story.isYours ? 'Your Story' : story.user}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Feed */}
-      <div className="pb-20">
-        {socialFeed.map((post) => (
-          <div key={post.id} className="border-b border-gray-100">
-            {/* Post Header */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                  {post.user.avatar}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-1">
-                    <span className="font-semibold text-sm">{post.user.username}</span>
-                    {post.user.isVerified && (
-                      <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-2 h-2 text-white fill-current" />
-                      </div>
-                    )}
-                  </div>
-                  {post.location && (
-                    <span className="text-xs text-gray-500">{post.location}</span>
-                  )}
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-800">{post.energy}</div>
+                  <div className="text-xs text-gray-500">Energy</div>
                 </div>
               </div>
-              <MoreHorizontal className="h-5 w-5 text-gray-600" />
             </div>
 
-            {/* Post Image */}
-            <div className="relative aspect-square bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-              {post.type === 'workout' ? (
-                <div className="text-center">
-                  <Dumbbell className="h-16 w-16 text-purple-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{post.content.workout}</h3>
-                  <div className="flex justify-center space-x-6">
+            {/* Post Content */}
+            <div className="px-6">
+              {post.type === 'challenge_complete' && (
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4 border border-yellow-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-gray-800">{post.content.challenge}</h4>
+                    <span className="text-2xl">{post.content.badge}</span>
+                  </div>
+                  <p className="text-gray-700 mb-3">{post.content.achievement}</p>
+                  <div className="bg-white rounded-full h-3 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                      style={{ width: `${post.content.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {post.type === 'workout_session' && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 border border-blue-200">
+                  <h4 className="font-bold text-gray-800 mb-2">{post.content.workout}</h4>
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
-                      <Clock className="h-5 w-5 text-gray-600 mx-auto" />
-                      <span className="text-sm text-gray-600">{post.content.duration}</span>
+                      <Clock className="h-5 w-5 text-blue-600 mx-auto mb-1" />
+                      <div className="text-sm font-medium text-gray-700">{post.content.duration}</div>
+                      <div className="text-xs text-gray-500">Duration</div>
                     </div>
                     <div className="text-center">
-                      <Zap className="h-5 w-5 text-orange-500 mx-auto" />
-                      <span className="text-sm text-gray-600">{post.content.calories}</span>
+                      <Zap className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+                      <div className="text-sm font-medium text-gray-700">{post.content.intensity}</div>
+                      <div className="text-xs text-gray-500">Intensity</div>
+                    </div>
+                    <div className="text-center">
+                      <Map className="h-5 w-5 text-green-600 mx-auto mb-1" />
+                      <div className="text-sm font-medium text-gray-700">{post.content.location}</div>
+                      <div className="text-xs text-gray-500">Location</div>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="text-center">
-                  <Trophy className="h-16 w-16 text-yellow-600 mx-auto mb-4" />
-                  <div className="bg-yellow-100 px-4 py-2 rounded-full">
-                    <span className="text-yellow-800 font-semibold">{post.content.achievement}</span>
+              )}
+
+              {post.type === 'personal_record' && (
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-4 border border-red-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-gray-800">New Personal Record!</h4>
+                    <span className="text-2xl">{post.content.celebration}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-red-600">{post.content.newRecord}</div>
+                      <div className="text-sm text-gray-600">{post.content.exercise}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">{post.content.improvement}</div>
+                      <div className="text-xs text-gray-500">Improvement</div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Post Actions */}
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-between mb-3">
+            <div className="p-6 pt-4">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <button onClick={() => toggleLike(post.id)}>
-                    <Heart className={`h-6 w-6 ${post.isLiked ? 'text-red-500 fill-current' : 'text-gray-700'}`} />
+                  <button 
+                    onClick={() => toggleCheer(post.id)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
+                      post.isCheered 
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-orange-100'
+                    }`}
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span className="text-sm font-medium">{post.cheers}</span>
                   </button>
-                  <MessageCircle className="h-6 w-6 text-gray-700" />
-                  <Send className="h-6 w-6 text-gray-700" />
+                  <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-100">
+                    <MessageCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">{post.comments}</span>
+                  </button>
+                  <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-purple-100">
+                    <Share2 className="h-4 w-4" />
+                  </button>
                 </div>
-                <Bookmark className="h-6 w-6 text-gray-700" />
-              </div>
-
-              {/* Likes */}
-              <div className="mb-2">
-                <span className="font-semibold text-sm">{post.likes.toLocaleString()} likes</span>
-              </div>
-
-              {/* Caption */}
-              <div className="mb-2">
-                <span className="font-semibold text-sm mr-2">{post.user.username}</span>
-                <span className="text-sm">
-                  {post.type === 'workout' 
-                    ? `Crushed this ${post.content.workout.toLowerCase()}! ${post.content.exercises.slice(0, 3).join(', ')} 💪`
-                    : post.content.text
-                  }
-                </span>
-              </div>
-
-              {/* Comments */}
-              {post.comments > 0 && (
-                <button className="text-gray-500 text-sm mb-2">
-                  View all {post.comments} comments
-                </button>
-              )}
-
-              {/* Time */}
-              <div className="text-xs text-gray-500 uppercase">
-                {post.timeAgo} ago
+                <span className="text-xs text-gray-500">{post.timeAgo} ago</span>
               </div>
             </div>
           </div>
@@ -235,227 +267,120 @@ const FitnessTracker = () => {
     </div>
   );
 
-  // Search/Explore View
-  const ExploreView = () => (
-    <div className="max-w-lg mx-auto bg-white min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
-        <div className="flex items-center space-x-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search workouts, people, gyms..."
-              className="w-full bg-gray-100 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Trending Categories */}
-      <div className="px-4 py-4">
-        <h3 className="font-semibold mb-3">Trending Workouts</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { name: 'HIIT Training', posts: '1.2M', gradient: 'from-red-400 to-pink-600' },
-            { name: 'Yoga Flow', posts: '890K', gradient: 'from-green-400 to-blue-500' },
-            { name: 'Strength', posts: '2.1M', gradient: 'from-purple-400 to-pink-600' },
-            { name: 'Running', posts: '1.8M', gradient: 'from-yellow-400 to-orange-600' }
-          ].map((category, index) => (
-            <div key={index} className={`bg-gradient-to-br ${category.gradient} rounded-lg p-4 text-white`}>
-              <h4 className="font-semibold">{category.name}</h4>
-              <span className="text-sm opacity-90">{category.posts} posts</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Suggested People */}
-      <div className="px-4 py-4 border-t border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Suggested for you</h3>
-          <button className="text-blue-600 text-sm font-semibold">See All</button>
-        </div>
-        {friends.map((friend) => (
-          <div key={friend.id} className="flex items-center justify-between py-2">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                {friend.avatar}
-              </div>
-              <div>
-                <div className="flex items-center space-x-1">
-                  <span className="font-semibold text-sm">{friend.username}</span>
-                  {friend.isVerified && (
-                    <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-2 h-2 text-white fill-current" />
-                    </div>
-                  )}
-                </div>
-                <span className="text-xs text-gray-500">Followed by {friend.mutualFriends} others</span>
-              </div>
-            </div>
-            <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold">
-              Follow
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Create Post View
-  const CreateView = () => (
-    <div className="max-w-lg mx-auto bg-white min-h-screen">
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
-        <button className="text-gray-600">Cancel</button>
-        <h2 className="font-semibold">New Workout</h2>
-        <button className="text-blue-600 font-semibold">Share</button>
-      </div>
-
-      <div className="p-4 space-y-6">
-        {/* Quick Workout Buttons */}
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { name: 'Quick HIIT', icon: Zap, color: 'from-red-400 to-pink-600' },
-            { name: 'Strength', icon: Dumbbell, color: 'from-purple-400 to-purple-600' },
-            { name: 'Cardio', icon: Heart, color: 'from-green-400 to-green-600' },
-            { name: 'Yoga', icon: User, color: 'from-blue-400 to-blue-600' }
-          ].map((workout, index) => (
-            <button key={index} className={`bg-gradient-to-br ${workout.color} rounded-xl p-6 text-white text-center`}>
-              <workout.icon className="h-8 w-8 mx-auto mb-2" />
-              <span className="font-semibold">{workout.name}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Custom Workout Form */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Log Custom Workout</h3>
-          <input 
-            type="text" 
-            placeholder="Workout name"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
-          />
-          <textarea 
-            placeholder="What did you do today? Share your wins! 💪"
-            rows="4"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <input 
-              type="number" 
-              placeholder="Duration (min)"
-              className="border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
-            />
-            <input 
-              type="number" 
-              placeholder="Calories burned"
-              className="border border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:outline-none"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Profile View (Instagram-style)
-  const ProfileView = () => (
-    <div className="max-w-lg mx-auto bg-white min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
-        <div className="flex items-center space-x-2">
-          <span className="font-semibold text-lg">{userProfile.username}</span>
-          {userProfile.isVerified && (
-            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-3 h-3 text-white fill-current" />
-            </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-4">
-          <PlusSquare className="h-6 w-6 text-gray-700" />
-          <Settings className="h-6 w-6 text-gray-700" />
-        </div>
-      </div>
-
-      {/* Profile Info */}
-      <div className="px-4 py-6">
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 p-0.5">
-            <div className="w-full h-full bg-white rounded-full p-1">
-              <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-3xl">
-                {userProfile.avatar}
-              </div>
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="font-bold text-lg">{userProfile.posts}</div>
-                <div className="text-gray-600 text-sm">Posts</div>
-              </div>
-              <div>
-                <div className="font-bold text-lg">{userProfile.followers.toLocaleString()}</div>
-                <div className="text-gray-600 text-sm">Followers</div>
-              </div>
-              <div>
-                <div className="font-bold text-lg">{userProfile.following}</div>
-                <div className="text-gray-600 text-sm">Following</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <h2 className="font-bold">{userProfile.name}</h2>
-          <p className="text-gray-700 text-sm mt-1">{userProfile.bio}</p>
-          {userProfile.website && (
-            <a href="#" className="text-blue-600 text-sm">{userProfile.website}</a>
-          )}
-        </div>
-
-        <div className="flex space-x-2">
-          <button className="flex-1 bg-gray-200 text-gray-900 py-2 px-4 rounded-lg font-semibold text-sm">
-            Edit Profile
-          </button>
-          <button className="flex-1 bg-gray-200 text-gray-900 py-2 px-4 rounded-lg font-semibold text-sm">
-            Share Profile
-          </button>
-        </div>
-      </div>
-
-      {/* Highlights */}
-      <div className="px-4 pb-4">
-        <div className="flex space-x-4 overflow-x-auto">
-          {['Workouts', 'Progress', 'Nutrition'].map((highlight, index) => (
-            <div key={index} className="flex flex-col items-center space-y-1 flex-shrink-0">
-              <div className="w-16 h-16 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center">
-                <span className="text-2xl">
-                  {index === 0 ? '💪' : index === 1 ? '📈' : '🥗'}
-                </span>
-              </div>
-              <span className="text-xs text-gray-600">{highlight}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Post Grid */}
-      <div className="border-t border-gray-200">
-        <div className="flex">
-          <button className="flex-1 py-3 border-b-2 border-gray-900">
-            <Grid className="h-6 w-6 mx-auto text-gray-900" />
-          </button>
-          <button className="flex-1 py-3 border-b-2 border-transparent">
-            <List className="h-6 w-6 mx-auto text-gray-400" />
-          </button>
-        </div>
+  // Tribe View (Community)
+  const TribeView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Fitness Tribe</h2>
         
-        <div className="grid grid-cols-3 gap-1">
-          {Array.from({ length: 9 }, (_, i) => (
-            <div key={i} className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-              <span className="text-2xl">
-                {i % 3 === 0 ? '💪' : i % 3 === 1 ? '🏃‍♀️' : '🚴‍♂️'}
-              </span>
+        {/* Tribe Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-white rounded-2xl p-4 text-center shadow-lg">
+            <div className="text-2xl font-bold text-purple-600">{userProfile.tribe}</div>
+            <div className="text-sm text-gray-600">Tribe Members</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 text-center shadow-lg">
+            <div className="text-2xl font-bold text-orange-600">{userProfile.challenges}</div>
+            <div className="text-sm text-gray-600">Active Challenges</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 text-center shadow-lg">
+            <div className="text-2xl font-bold text-green-600">{userProfile.energy}</div>
+            <div className="text-sm text-gray-600">Energy Level</div>
+          </div>
+        </div>
+
+        {/* Find Workout Buddies */}
+        <div className="bg-white rounded-3xl shadow-lg p-6 mb-6">
+          <h3 className="font-bold text-gray-800 mb-4">Find Workout Buddies</h3>
+          <div className="space-y-4">
+            {[
+              { name: 'Jenny Power', activity: 'Running', distance: '0.5 miles away', avatar: '🏃‍♀️', level: 'Warrior' },
+              { name: 'Marcus Strong', activity: 'Weight Training', distance: '1.2 miles away', avatar: '💪', level: 'Champion' },
+              { name: 'Luna Zen', activity: 'Yoga', distance: '0.8 miles away', avatar: '🧘‍♀️', level: 'Elite' }
+            ].map((buddy, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white text-xl">
+                    {buddy.avatar}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">{buddy.name}</h4>
+                    <p className="text-sm text-purple-600">{buddy.level} • {buddy.activity}</p>
+                    <p className="text-xs text-gray-500">{buddy.distance}</p>
+                  </div>
+                </div>
+                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Connect
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Challenges View
+  const ChallengesView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Fitness Challenges</h2>
+        
+        <div className="space-y-6">
+          {[
+            { 
+              name: 'Summer Shred Challenge', 
+              participants: 2847, 
+              daysLeft: 12, 
+              reward: '🏆 Championship Badge',
+              gradient: 'from-yellow-400 to-orange-500',
+              progress: 65
+            },
+            { 
+              name: '10K Steps Daily', 
+              participants: 1523, 
+              daysLeft: 5, 
+              reward: '👟 Walker Badge',
+              gradient: 'from-green-400 to-blue-500',
+              progress: 80
+            },
+            { 
+              name: 'Mindful Movement', 
+              participants: 856, 
+              daysLeft: 18, 
+              reward: '🧘‍♀️ Zen Master Badge',
+              gradient: 'from-purple-400 to-pink-500',
+              progress: 45
+            }
+          ].map((challenge, index) => (
+            <div key={index} className="bg-white rounded-3xl shadow-lg overflow-hidden">
+              <div className={`bg-gradient-to-r ${challenge.gradient} p-6 text-white`}>
+                <h3 className="text-xl font-bold mb-2">{challenge.name}</h3>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm opacity-90">{challenge.participants.toLocaleString()} participants</span>
+                  <span className="text-sm font-medium">{challenge.daysLeft} days left</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-600">Your Progress</span>
+                    <span className="text-sm font-bold text-gray-800">{challenge.progress}%</span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-3">
+                    <div 
+                      className={`bg-gradient-to-r ${challenge.gradient} h-3 rounded-full transition-all duration-500`}
+                      style={{ width: `${challenge.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Reward: {challenge.reward}</span>
+                  <button className={`bg-gradient-to-r ${challenge.gradient} text-white px-6 py-2 rounded-full text-sm font-medium`}>
+                    Join Challenge
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -463,84 +388,100 @@ const FitnessTracker = () => {
     </div>
   );
 
-  // Activity/Notifications View
-  const ActivityView = () => (
-    <div className="max-w-lg mx-auto bg-white min-h-screen">
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
-        <h2 className="font-bold text-lg">Activity</h2>
-      </div>
-      
-      <div className="p-4">
-        <div className="space-y-4">
-          {[
-            { user: 'Sarah', action: 'liked your workout', time: '2m', avatar: '👩‍💪' },
-            { user: 'Mike', action: 'started following you', time: '1h', avatar: '💪' },
-            { user: 'Emma', action: 'commented on your post', time: '3h', avatar: '🏃‍♀️' },
-            { user: 'Alex', action: 'shared your workout', time: '5h', avatar: '🚴‍♂️' }
-          ].map((notification, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                {notification.avatar}
-              </div>
-              <div className="flex-1">
-                <span className="text-sm">
-                  <span className="font-semibold">{notification.user}</span> {notification.action}
-                </span>
-                <div className="text-xs text-gray-500">{notification.time}</div>
-              </div>
-              {notification.action.includes('following') ? (
-                <button className="bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-semibold">
-                  Follow Back
-                </button>
-              ) : (
-                <Heart className="h-8 w-8 text-red-500" />
-              )}
+  // Profile View
+  const ProfileView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-3xl shadow-lg p-8 mb-6">
+          <div className="text-center mb-6">
+            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center text-white text-4xl mb-4">
+              {userProfile.avatar}
             </div>
-          ))}
+            <h2 className="text-2xl font-bold text-gray-800">{userProfile.name}</h2>
+            <p className="text-purple-600 font-medium">{userProfile.level}</p>
+            <div className="flex items-center justify-center space-x-2 mt-2">
+              <span className="text-orange-500">🔥</span>
+              <span className="text-sm text-gray-600">{userProfile.streak} day streak</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-orange-600">{userProfile.energy}</div>
+              <div className="text-sm text-gray-600">Energy</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">{userProfile.tribe}</div>
+              <div className="text-sm text-gray-600">Tribe</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">{userProfile.challenges}</div>
+              <div className="text-sm text-gray-600">Challenges</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Achievements */}
+        <div className="bg-white rounded-3xl shadow-lg p-6">
+          <h3 className="font-bold text-gray-800 mb-4">Recent Achievements</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {['🏆 Challenge Winner', '💪 Strength Master', '🔥 Streak Champion', '⭐ Rising Star'].map((achievement, index) => (
+              <div key={index} className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl p-4 text-center border border-yellow-200">
+                <div className="text-2xl mb-2">{achievement.split(' ')[0]}</div>
+                <div className="text-sm font-medium text-gray-700">{achievement.split(' ').slice(1).join(' ')}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 
   const tabs = [
-    { id: 'home', name: 'Home', icon: Home },
-    { id: 'explore', name: 'Explore', icon: Compass },
-    { id: 'create', name: 'Create', icon: PlusSquare },
-    { id: 'activity', name: 'Activity', icon: Heart },
-    { id: 'profile', name: 'Profile', icon: User }
+    { id: 'feed', name: 'Feed', icon: Home, color: 'text-orange-500' },
+    { id: 'tribe', name: 'Tribe', icon: Users, color: 'text-purple-500' },
+    { id: 'challenges', name: 'Challenges', icon: Trophy, color: 'text-green-500' },
+    { id: 'profile', name: 'Profile', icon: User, color: 'text-blue-500' }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <div className="pb-16">
-        {activeTab === 'home' && <HomeView />}
-        {activeTab === 'explore' && <ExploreView />}
-        {activeTab === 'create' && <CreateView />}
-        {activeTab === 'activity' && <ActivityView />}
+      <div className="pb-20">
+        {activeTab === 'feed' && <FeedView />}
+        {activeTab === 'tribe' && <TribeView />}
+        {activeTab === 'challenges' && <ChallengesView />}
         {activeTab === 'profile' && <ProfileView />}
       </div>
 
-      {/* Bottom Navigation (Instagram-style) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-around py-2">
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-around py-3">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className="flex flex-col items-center py-2 px-3"
+                  className={`flex flex-col items-center py-2 px-4 transition-all ${
+                    activeTab === tab.id ? 'transform scale-110' : ''
+                  }`}
                 >
                   <Icon 
                     className={`h-6 w-6 ${
                       activeTab === tab.id 
-                        ? 'text-gray-900' 
+                        ? tab.color
                         : 'text-gray-400'
-                    }`} 
-                    fill={activeTab === tab.id ? 'currentColor' : 'none'}
+                    }`}
                   />
+                  <span className={`text-xs mt-1 font-medium ${
+                    activeTab === tab.id 
+                      ? tab.color
+                      : 'text-gray-400'
+                  }`}>
+                    {tab.name}
+                  </span>
                 </button>
               );
             })}
