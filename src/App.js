@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send, Wifi, WifiOff, Smartphone, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, Send } from 'lucide-react';
 
 const FitnessTracker = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -144,11 +144,8 @@ const FitnessTracker = () => {
     setGoals([...goals, { ...goal, id: Date.now(), progress: 0, created: new Date().toLocaleDateString() }]);
   };
 
-  const addWorkoutTemplate = (template) => {
-    setWorkoutTemplates([...workoutTemplates, { ...template, id: Date.now(), creator: userProfile.name, likes: 0, uses: 0 }]);
-  };
-
-  const useTemplate = (template) => {
+  // FIXED: Renamed from "useTemplate" to "startTemplate" (no "use" prefix!)
+  const startTemplate = (template) => {
     setActiveTab('workouts');
     alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
@@ -330,7 +327,7 @@ const FitnessTracker = () => {
                     )}
                   </div>
                   <button 
-                    onClick={() => useTemplate(post.content)}
+                    onClick={() => startTemplate(post.content)}
                     className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors mt-3 flex items-center"
                   >
                     <Play className="mr-2 h-4 w-4" />
@@ -393,151 +390,113 @@ const FitnessTracker = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
-          <div className="space-y-3">
-            {analyticsData.weeklyWorkouts.map((week, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">{week.week}</span>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
-                    <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.workouts} workouts</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 text-emerald-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.duration} min</span>
-                  </div>
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
+        <div className="space-y-3">
+          {analyticsData.weeklyWorkouts.map((week, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">{week.week}</span>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
+                  <span className="text-sm text-slate-600">{week.workouts} workouts</span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Workout Type Distribution</h3>
-          <div className="space-y-4">
-            {analyticsData.workoutTypes.map((type, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">{type.type}</span>
-                  <span className="text-sm text-slate-600">{type.count} workouts ({type.percentage}%)</span>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 text-emerald-600 mr-1" />
+                  <span className="text-sm text-slate-600">{week.duration} min</span>
                 </div>
-                <div className="bg-stone-200 rounded-full h-3">
-                  <div 
-                    className="bg-slate-700 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${type.percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const TemplatesView = () => {
-    const [showCreateForm, setShowCreateForm] = useState(false);
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Workout Templates</h2>
-          <button 
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Template
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {workoutTemplates.map((template) => (
-            <div key={template.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-slate-800">{template.name}</h3>
-                  <p className="text-slate-600">by {template.creator}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    template.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-800' :
-                    template.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-800' :
-                    'bg-rose-100 text-rose-800'
-                  }`}>
-                    {template.difficulty}
-                  </span>
-                  <button className="text-slate-400 hover:text-slate-600">
-                    <Bookmark className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center text-slate-600">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {template.duration} minutes
-                </div>
-                <div className="space-y-2">
-                  {template.exercises.slice(0, 3).map((exercise, index) => (
-                    <div key={index} className="text-sm bg-white rounded p-2 border border-stone-200">
-                      <span className="font-medium text-slate-700">{exercise.name}</span>
-                      {exercise.sets && exercise.reps && (
-                        <span className="text-slate-600 ml-2">
-                          {exercise.sets} sets × {exercise.reps} reps
-                        </span>
-                      )}
-                      {exercise.duration && (
-                        <span className="text-slate-600 ml-2">
-                          {exercise.duration}s
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                  {template.exercises.length > 3 && (
-                    <div className="text-sm text-slate-500">
-                      +{template.exercises.length - 3} more exercises
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1 mb-4">
-                {template.tags.map((tag, index) => (
-                  <span key={index} className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded border">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-slate-500">
-                  <span className="flex items-center">
-                    <Heart className="h-4 w-4 mr-1" />
-                    {template.likes}
-                  </span>
-                  <span className="flex items-center">
-                    <Eye className="h-4 w-4 mr-1" />
-                    {template.uses} uses
-                  </span>
-                </div>
-                <button 
-                  onClick={() => useTemplate(template)}
-                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Use Template
-                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+
+  const TemplatesView = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-800">Workout Templates</h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {workoutTemplates.map((template) => (
+          <div key={template.id} className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-800">{template.name}</h3>
+                <p className="text-slate-600">by {template.creator}</p>
+              </div>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                template.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-800' :
+                template.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-800' :
+                'bg-rose-100 text-rose-800'
+              }`}>
+                {template.difficulty}
+              </span>
+            </div>
+
+            <div className="space-y-3 mb-4">
+              <div className="flex items-center text-slate-600">
+                <Clock className="mr-2 h-4 w-4" />
+                {template.duration} minutes
+              </div>
+              <div className="space-y-2">
+                {template.exercises.slice(0, 3).map((exercise, index) => (
+                  <div key={index} className="text-sm bg-white rounded p-2 border border-stone-200">
+                    <span className="font-medium text-slate-700">{exercise.name}</span>
+                    {exercise.sets && exercise.reps && (
+                      <span className="text-slate-600 ml-2">
+                        {exercise.sets} sets × {exercise.reps} reps
+                      </span>
+                    )}
+                    {exercise.duration && (
+                      <span className="text-slate-600 ml-2">
+                        {exercise.duration}s
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {template.exercises.length > 3 && (
+                  <div className="text-sm text-slate-500">
+                    +{template.exercises.length - 3} more exercises
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1 mb-4">
+              {template.tags.map((tag, index) => (
+                <span key={index} className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-sm text-slate-500">
+                <span className="flex items-center">
+                  <Heart className="h-4 w-4 mr-1" />
+                  {template.likes}
+                </span>
+                <span className="flex items-center">
+                  <Eye className="h-4 w-4 mr-1" />
+                  {template.uses} uses
+                </span>
+              </div>
+              <button 
+                onClick={() => startTemplate(template)}
+                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Use Template
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   const GoalsView = () => {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -721,13 +680,11 @@ const FitnessTracker = () => {
                   </p>
                 </div>
               </div>
-              <button 
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-                  friend.isFollowing 
-                    ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
-                    : 'bg-slate-800 text-white hover:bg-slate-700'
-                }`}
-              >
+              <button className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+                friend.isFollowing 
+                  ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
+                  : 'bg-slate-800 text-white hover:bg-slate-700'
+              }`}>
                 {friend.isFollowing ? (
                   <>
                     <Users className="mr-2 h-4 w-4" />
