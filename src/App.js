@@ -1,85 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, ThumbsUp, Send, Video, Download, Wifi, WifiOff, Smartphone } from 'lucide-react';
-
-// PWA Hooks
-const usePWA = () => {
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-      setIsInstallable(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const installApp = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const result = await installPrompt.userChoice;
-    if (result.outcome === 'accepted') {
-      setIsInstallable(false);
-      setInstallPrompt(null);
-    }
-  };
-
-  return { isInstallable, installApp };
-};
-
-const useOfflineStorage = (key, initialValue) => {
-  const [value, setValue] = useState(() => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
-    }
-  });
-
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  const setStoredValue = (newValue) => {
-    try {
-      setValue(newValue);
-      localStorage.setItem(key, JSON.stringify(newValue));
-      
-      // Queue for sync when online
-      if (!isOnline) {
-        const pendingSync = JSON.parse(localStorage.getItem('pendingSync') || '[]');
-        pendingSync.push({ key, value: newValue, timestamp: Date.now() });
-        localStorage.setItem('pendingSync', JSON.stringify(pendingSync));
-      }
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
-  };
-
-  return [value, setStoredValue, isOnline];
-};
+import React, { useState } from 'react';
+import { Camera, Dumbbell, Target, MessageCircle, Plus, Calendar, TrendingUp, Award, Clock, User, Users, Heart, Share2, Search, UserPlus, Settings, Eye, Copy, Trophy, Zap, BarChart3, Play, CheckCircle, MessageSquare, Bookmark, Star, ThumbsUp, Send, Video, Download } from 'lucide-react';
 
 const FitnessTracker = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [progressPhotos, setProgressPhotos] = useOfflineStorage('progressPhotos', []);
-  const [workouts, setWorkouts] = useOfflineStorage('workouts', []);
-  const [goals, setGoals] = useOfflineStorage('goals', []);
-  const [habits, setHabits] = useOfflineStorage('habits', [
+  const [progressPhotos, setProgressPhotos] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
+  const [goals, setGoals] = useState([]);
+  const [habits, setHabits] = useState([
     { id: 1, name: 'Drink 8 glasses of water', streak: 5, completed: true, category: 'hydration' },
     { id: 2, name: '10,000 steps daily', streak: 3, completed: false, category: 'activity' },
     { id: 3, name: '8 hours of sleep', streak: 2, completed: true, category: 'recovery' }
@@ -198,7 +125,7 @@ const FitnessTracker = () => {
       likes: 23,
       comments: [
         { id: 1, user: 'Sarah Johnson', text: 'Incredible! So proud of you! 🎉', timeAgo: '2h ago' },
-        { id: 2, user: 'You', text: 'Beast mode! What\\'s your next goal?', timeAgo: '1h ago' }
+        { id: 2, user: 'You', text: 'Beast mode! What\'s your next goal?', timeAgo: '1h ago' }
       ],
       timeAgo: '4h ago',
       isLiked: true
@@ -223,10 +150,6 @@ const FitnessTracker = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
-
-  // PWA functionality
-  const { isInstallable, installApp } = usePWA();
-  const isOnline = navigator.onLine;
 
   // Analytics mock data
   const analyticsData = {
@@ -263,14 +186,6 @@ const FitnessTracker = () => {
       return "Based on your goals, I recommend a mix of strength training and cardio. Try: 3x/week strength training (compound movements like squats, deadlifts, push-ups) and 2x/week cardio (20-30 min sessions). What's your current fitness level?";
     } else if (lowerMessage.includes('analytics') || lowerMessage.includes('progress')) {
       return "Your analytics show great consistency! You're averaging 4.2 workouts per week with an 85% consistency score. Focus on maintaining this rhythm. I notice strength training makes up 40% of your workouts - consider adding more variety for balanced fitness!";
-    } else if (lowerMessage.includes('diet') || lowerMessage.includes('nutrition')) {
-      return "Nutrition is key! Focus on: protein with every meal (0.8-1g per lb bodyweight), plenty of vegetables, complex carbs around workouts, and stay hydrated (half your bodyweight in ounces of water daily). What are your current eating habits?";
-    } else if (lowerMessage.includes('goal') || lowerMessage.includes('lose weight') || lowerMessage.includes('gain muscle')) {
-      return "Great question! Setting SMART goals is crucial. Be specific, measurable, and realistic. For weight loss: aim for 1-2lbs per week. For muscle gain: focus on progressive overload and adequate protein. What's your main goal right now?";
-    } else if (lowerMessage.includes('motivation') || lowerMessage.includes('stuck')) {
-      return "I understand! Plateaus happen to everyone. Try: changing your routine, tracking measurements (not just weight), celebrating small wins, and remember why you started. Progress isn't always linear. What's been challenging you lately?";
-    } else if (lowerMessage.includes('friends') || lowerMessage.includes('social')) {
-      return "Having workout buddies is amazing for motivation! Try sharing your workouts with friends, join group challenges, or find an accountability partner. Social support increases your chance of success by 95%!";
     } else {
       return "That's a great question! I'm here to help with workouts, nutrition, goal setting, challenges, and motivation. Feel free to ask me anything about your fitness journey. What specific area would you like guidance on?";
     }
@@ -293,6 +208,7 @@ const FitnessTracker = () => {
   };
 
   const handleVideoUpload = (workoutId) => {
+    // Simulate video upload
     alert('Video uploaded! In a real app, this would process and attach the video to your workout.');
   };
 
@@ -301,19 +217,17 @@ const FitnessTracker = () => {
     setWorkouts([...workouts, newWorkout]);
     
     // Auto-post to social feed
-    if (isOnline) {
-      const socialPost = {
-        id: Date.now() + 1,
-        user: userProfile,
-        type: 'workout',
-        content: newWorkout,
-        likes: 0,
-        comments: [],
-        timeAgo: 'just now',
-        isLiked: false
-      };
-      setSocialFeed([socialPost, ...socialFeed]);
-    }
+    const socialPost = {
+      id: Date.now() + 1,
+      user: userProfile,
+      type: 'workout',
+      content: newWorkout,
+      likes: 0,
+      comments: [],
+      timeAgo: 'just now',
+      isLiked: false
+    };
+    setSocialFeed([socialPost, ...socialFeed]);
   };
 
   const addGoal = (goal) => {
@@ -326,6 +240,7 @@ const FitnessTracker = () => {
 
   const useTemplate = (template) => {
     setActiveTab('workouts');
+    // Pre-fill workout form with template data
     alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
 
@@ -386,14 +301,6 @@ const FitnessTracker = () => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
   };
 
-  const followUser = (userId) => {
-    setFriends(friends.map(friend => 
-      friend.id === userId 
-        ? { ...friend, isFollowing: !friend.isFollowing, followers: friend.isFollowing ? friend.followers - 1 : friend.followers + 1 }
-        : friend
-    ));
-  };
-
   const DashboardView = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -433,37 +340,6 @@ const FitnessTracker = () => {
             </div>
             <Award className="h-10 w-10" />
           </div>
-        </div>
-      </div>
-
-      {/* PWA Features Card */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold flex items-center">
-              <Smartphone className="mr-2 h-6 w-6" />
-              App Features
-            </h3>
-            <p className="text-sm opacity-90 mt-1">
-              ✓ Works offline  ✓ Install as app  ✓ Auto-sync data
-            </p>
-            <div className="flex items-center mt-2">
-              {isOnline ? (
-                <><Wifi className="h-4 w-4 mr-1" /><span className="text-sm">Online & Synced</span></>
-              ) : (
-                <><WifiOff className="h-4 w-4 mr-1" /><span className="text-sm">Offline Mode</span></>
-              )}
-            </div>
-          </div>
-          {isInstallable && (
-            <button
-              onClick={installApp}
-              className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Install App
-            </button>
-          )}
         </div>
       </div>
 
@@ -1300,7 +1176,7 @@ const FitnessTracker = () => {
                 </div>
               </div>
               <button 
-                onClick={() => followUser(friend.id)}
+                onClick={() => {}}
                 className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
                   friend.isFollowing 
                     ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
@@ -1390,10 +1266,7 @@ const FitnessTracker = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center">
-            Workouts
-            {!isOnline && <span className="ml-2 text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded">Saved Offline</span>}
-          </h2>
+          <h2 className="text-2xl font-bold text-slate-800">Workouts</h2>
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center"
@@ -1685,7 +1558,6 @@ const FitnessTracker = () => {
           <h2 className="text-xl font-bold flex items-center">
             <MessageCircle className="mr-2" />
             AI Fitness Coach
-            {!isOnline && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Offline Mode</span>}
           </h2>
           <p className="text-stone-200 text-sm">Get personalized tips, workout suggestions, and motivation!</p>
         </div>
@@ -1753,15 +1625,10 @@ const FitnessTracker = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-amber-400 bg-clip-text text-transparent">
-              FitTrack Social PWA
+              FitTrack Social
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                {isOnline ? (
-                  <Wifi className="h-5 w-5 text-emerald-400" />
-                ) : (
-                  <WifiOff className="h-5 w-5 text-amber-400" />
-                )}
                 <Zap className="h-5 w-5 text-amber-400" />
                 <span className="text-sm font-semibold text-stone-200">{userProfile.currentStreak} day streak</span>
               </div>
@@ -1783,7 +1650,7 @@ const FitnessTracker = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-3 py-2className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-slate-800 text-white shadow-md'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
