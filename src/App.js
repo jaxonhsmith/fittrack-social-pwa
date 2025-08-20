@@ -83,6 +83,7 @@ const FitnessTracker = () => {
     { id: 2, name: '10,000 steps daily', streak: 3, completed: false, category: 'activity' },
     { id: 3, name: '8 hours of sleep', streak: 2, completed: true, category: 'recovery' }
   ]);
+
   const [workoutTemplates, setWorkoutTemplates] = useState([
     {
       id: 1,
@@ -317,7 +318,7 @@ const FitnessTracker = () => {
     setWorkoutTemplates([...workoutTemplates, { ...template, id: Date.now(), creator: userProfile.name, likes: 0, uses: 0 }]);
   };
 
-  const useTemplate = (template) => {
+  const startWorkoutFromTemplate = (template) => {
     setActiveTab('workouts');
     alert(`Starting "${template.name}" workout! This would pre-fill the workout form with the template exercises.`);
   };
@@ -377,6 +378,14 @@ const FitnessTracker = () => {
 
   const toggleComments = (postId) => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
+  };
+
+  const followUser = (userId) => {
+    setFriends(friends.map(friend => 
+      friend.id === userId 
+        ? { ...friend, isFollowing: !friend.isFollowing, followers: friend.isFollowing ? friend.followers - 1 : friend.followers + 1 }
+        : friend
+    ));
   };
 
   // PWA Install Banner Component
@@ -578,71 +587,137 @@ const FitnessTracker = () => {
     </div>
   );
 
-  const AnalyticsView = () => (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <BarChart3 className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Workouts</h3>
-          <p className="text-3xl font-bold text-slate-800">{analyticsData.progressMetrics.totalWorkouts}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Clock className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Total Hours</h3>
-          <p className="text-3xl font-bold text-emerald-600">{analyticsData.progressMetrics.totalHours}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Weekly Average</h3>
-          <p className="text-3xl font-bold text-purple-600">{analyticsData.progressMetrics.averagePerWeek}</p>
-        </div>
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
-          <Star className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-slate-600">Consistency</h3>
-          <p className="text-3xl font-bold text-amber-600">{analyticsData.progressMetrics.consistencyScore}%</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
-          <div className="space-y-3">
-            {analyticsData.weeklyWorkouts.map((week, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">{week.week}</span>
+  const SocialView = () => (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <h2 className="text-2xl font-bold mb-6 text-slate-800">Social Feed</h2>
+        
+        <div className="space-y-6">
+          {socialFeed.map((post) => (
+            <div key={post.id} className="border border-stone-200 rounded-lg p-6 bg-white">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <span className="text-3xl mr-3">{post.user.avatar}</span>
+                  <div>
+                    <h4 className="font-semibold text-slate-800">{post.user.name}</h4>
+                    <p className="text-sm text-slate-500">{post.user.username} • {post.timeAgo}</p>
+                  </div>
+                </div>
+                <Share2 className="h-5 w-5 text-slate-400 cursor-pointer hover:text-slate-600" />
+              </div>
+              
+              {post.type === 'workout' ? (
+                <div className="bg-stone-50 rounded-lg p-4 mb-4 border border-stone-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-lg text-slate-800">{post.content.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
+                        {post.content.type}
+                      </span>
+                      {post.content.hasVideo && (
+                        <Video className="h-4 w-4 text-rose-500" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="flex items-center text-slate-600">
+                      <Clock className="mr-2 h-4 w-4" />
+                      {post.content.duration} minutes
+                    </p>
+                    {post.content.exercises && (
+                      <p className="text-slate-600">
+                        <strong>Exercises:</strong> {post.content.exercises}
+                      </p>
+                    )}
+                    {post.content.notes && (
+                      <p className="text-slate-600">
+                        <strong>Notes:</strong> {post.content.notes}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button 
+                      onClick={() => startWorkoutFromTemplate(post.content)}
+                      className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Try This Workout
+                    </button>
+                    {post.content.hasVideo && (
+                      <button className="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition-colors flex items-center">
+                        <Video className="mr-2 h-4 w-4" />
+                        Watch Video
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <p className="text-slate-800">{post.content.text}</p>
+                  {post.content.achievement && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
+                      <div className="flex items-center">
+                        <Award className="h-5 w-5 text-amber-600 mr-2" />
+                        <span className="font-semibold text-amber-800">{post.content.achievement}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between pt-4 border-t border-stone-200">
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
-                    <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.workouts} workouts</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 text-emerald-600 mr-1" />
-                    <span className="text-sm text-slate-600">{week.duration} min</span>
-                  </div>
+                  <button 
+                    onClick={() => toggleLike(post.id)}
+                    className={`flex items-center space-x-2 ${post.isLiked ? 'text-rose-500' : 'text-slate-500'} hover:text-rose-500 transition-colors`}
+                  >
+                    <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                    <span>{post.likes} likes</span>
+                  </button>
+                  <button 
+                    onClick={() => toggleComments(post.id)}
+                    className="flex items-center space-x-2 text-slate-500 hover:text-slate-700 transition-colors"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    <span>{post.comments.length} comments</span>
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-          <h3 className="text-xl font-bold mb-4 text-slate-800">Workout Type Distribution</h3>
-          <div className="space-y-4">
-            {analyticsData.workoutTypes.map((type, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">{type.type}</span>
-                  <span className="text-sm text-slate-600">{type.count} workouts ({type.percentage}%)</span>
+              {showComments[post.id] && (
+                <div className="mt-4 pt-4 border-t border-stone-200">
+                  <div className="space-y-3 mb-4">
+                    {post.comments.map((comment) => (
+                      <div key={comment.id} className="bg-stone-50 rounded-lg p-3 border border-stone-200">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="font-semibold text-sm text-slate-700">{comment.user}</span>
+                            <p className="text-sm mt-1 text-slate-600">{comment.text}</p>
+                          </div>
+                          <span className="text-xs text-slate-500">{comment.timeAgo}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add a comment..."
+                      value={newComment[post.id] || ''}
+                      onChange={(e) => setNewComment({ ...newComment, [post.id]: e.target.value })}
+                      className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:border-slate-500 focus:outline-none"
+                    />
+                    <button 
+                      onClick={() => addComment(post.id)}
+                      className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="bg-stone-200 rounded-full h-3">
-                  <div 
-                    className="bg-slate-700 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${type.percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -738,6 +813,76 @@ const FitnessTracker = () => {
               )}
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const AnalyticsView = () => (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
+          <BarChart3 className="h-8 w-8 text-slate-700 mx-auto mb-2" />
+          <h3 className="font-semibold text-slate-600">Total Workouts</h3>
+          <p className="text-3xl font-bold text-slate-800">{analyticsData.progressMetrics.totalWorkouts}</p>
+        </div>
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
+          <Clock className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
+          <h3 className="font-semibold text-slate-600">Total Hours</h3>
+          <p className="text-3xl font-bold text-emerald-600">{analyticsData.progressMetrics.totalHours}</p>
+        </div>
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
+          <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+          <h3 className="font-semibold text-slate-600">Weekly Average</h3>
+          <p className="text-3xl font-bold text-purple-600">{analyticsData.progressMetrics.averagePerWeek}</p>
+        </div>
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 text-center border border-stone-200">
+          <Star className="h-8 w-8 text-amber-600 mx-auto mb-2" />
+          <h3 className="font-semibold text-slate-600">Consistency</h3>
+          <p className="text-3xl font-bold text-amber-600">{analyticsData.progressMetrics.consistencyScore}%</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+          <h3 className="text-xl font-bold mb-4 text-slate-800">Weekly Workout Trends</h3>
+          <div className="space-y-3">
+            {analyticsData.weeklyWorkouts.map((week, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-700">{week.week}</span>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    <Dumbbell className="h-4 w-4 text-slate-600 mr-1" />
+                    <span className="text-sm text-slate-600">{week.workouts} workouts</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 text-emerald-600 mr-1" />
+                    <span className="text-sm text-slate-600">{week.duration} min</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+          <h3 className="text-xl font-bold mb-4 text-slate-800">Workout Type Distribution</h3>
+          <div className="space-y-4">
+            {analyticsData.workoutTypes.map((type, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-slate-700">{type.type}</span>
+                  <span className="text-sm text-slate-600">{type.count} workouts ({type.percentage}%)</span>
+                </div>
+                <div className="bg-stone-200 rounded-full h-3">
+                  <div 
+                    className="bg-slate-700 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${type.percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -1034,7 +1179,7 @@ const FitnessTracker = () => {
                   </span>
                 </div>
                 <button 
-                  onClick={() => useTemplate(template)}
+                  onClick={() => startWorkoutFromTemplate(template)}
                   className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
                 >
                   <Play className="mr-2 h-4 w-4" />
@@ -1047,296 +1192,6 @@ const FitnessTracker = () => {
       </div>
     );
   };
-
-  const SocialView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h2 className="text-2xl font-bold mb-6 text-slate-800">Social Feed</h2>
-        
-        <div className="space-y-6">
-          {socialFeed.map((post) => (
-            <div key={post.id} className="border border-stone-200 rounded-lg p-6 bg-white">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <span className="text-3xl mr-3">{post.user.avatar}</span>
-                  <div>
-                    <h4 className="font-semibold text-slate-800">{post.user.name}</h4>
-                    <p className="text-sm text-slate-500">{post.user.username} • {post.timeAgo}</p>
-                  </div>
-                </div>
-                <Share2 className="h-5 w-5 text-slate-400 cursor-pointer hover:text-slate-600" />
-              </div>
-              
-              {post.type === 'workout' ? (
-                <div className="bg-stone-50 rounded-lg p-4 mb-4 border border-stone-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-slate-800">{post.content.name}</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-full border">
-                        {post.content.type}
-                      </span>
-                      {post.content.hasVideo && (
-                        <Video className="h-4 w-4 text-rose-500" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="flex items-center text-slate-600">
-                      <Clock className="mr-2 h-4 w-4" />
-                      {post.content.duration} minutes
-                    </p>
-                    {post.content.exercises && (
-                      <p className="text-slate-600">
-                        <strong>Exercises:</strong> {post.content.exercises}
-                      </p>
-                    )}
-                    {post.content.notes && (
-                      <p className="text-slate-600">
-                        <strong>Notes:</strong> {post.content.notes}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <button 
-                      onClick={() => useTemplate(post.content)}
-                      className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      Try This Workout
-                    </button>
-                    {post.content.hasVideo && (
-                      <button className="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition-colors flex items-center">
-                        <Video className="mr-2 h-4 w-4" />
-                        Watch Video
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <p className="text-slate-800">{post.content.text}</p>
-                  {post.content.achievement && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center">
-                        <Award className="h-5 w-5 text-amber-600 mr-2" />
-                        <span className="font-semibold text-amber-800">{post.content.achievement}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between pt-4 border-t border-stone-200">
-                <div className="flex items-center space-x-4">
-                  <button 
-                    onClick={() => toggleLike(post.id)}
-                    className={`flex items-center space-x-2 ${post.isLiked ? 'text-rose-500' : 'text-slate-500'} hover:text-rose-500 transition-colors`}
-                  >
-                    <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                    <span>{post.likes} likes</span>
-                  </button>
-                  <button 
-                    onClick={() => toggleComments(post.id)}
-                    className="flex items-center space-x-2 text-slate-500 hover:text-slate-700 transition-colors"
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    <span>{post.comments.length} comments</span>
-                  </button>
-                </div>
-              </div>
-
-              {showComments[post.id] && (
-                <div className="mt-4 pt-4 border-t border-stone-200">
-                  <div className="space-y-3 mb-4">
-                    {post.comments.map((comment) => (
-                      <div key={comment.id} className="bg-stone-50 rounded-lg p-3 border border-stone-200">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="font-semibold text-sm text-slate-700">{comment.user}</span>
-                            <p className="text-sm mt-1 text-slate-600">{comment.text}</p>
-                          </div>
-                          <span className="text-xs text-slate-500">{comment.timeAgo}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add a comment..."
-                      value={newComment[post.id] || ''}
-                      onChange={(e) => setNewComment({ ...newComment, [post.id]: e.target.value })}
-                      className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:border-slate-500 focus:outline-none"
-                    />
-                    <button 
-                      onClick={() => addComment(post.id)}
-                      className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors"
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProfileView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex items-center space-x-6 mb-6">
-          <div className="text-6xl">{userProfile.avatar}</div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800">{userProfile.name}</h2>
-            <p className="text-slate-600">{userProfile.username}</p>
-            <p className="text-slate-700 mt-2">{userProfile.bio}</p>
-          </div>
-          <button className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            Edit Profile
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-5 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-slate-700">{userProfile.workoutsCompleted}</p>
-            <p className="text-sm text-slate-600">Workouts</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-emerald-600">{userProfile.goalsAchieved}</p>
-            <p className="text-sm text-slate-600">Goals</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-purple-600">{userProfile.followers}</p>
-            <p className="text-sm text-slate-600">Followers</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-amber-600">{userProfile.following}</p>
-            <p className="text-sm text-slate-600">Following</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-rose-600">{userProfile.currentStreak}</p>
-            <p className="text-sm text-slate-600">Streak</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <h3 className="text-xl font-bold mb-4 text-slate-800">Recent Achievements</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {achievements.filter(a => a.earned).map((achievement) => (
-            <div key={achievement.id} className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <div className="text-3xl mb-2">{achievement.icon}</div>
-              <h4 className="font-semibold text-sm text-slate-700">{achievement.name}</h4>
-              <p className="text-xs text-slate-500 mt-1">{achievement.date}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const FriendsView = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">Find Friends</h2>
-          <div className="flex items-center space-x-2">
-            <Search className="h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {friends.map((friend) => (
-            <div key={friend.id} className="flex items-center justify-between p-4 border border-stone-200 rounded-lg bg-white">
-              <div className="flex items-center space-x-4">
-                <span className="text-4xl">{friend.avatar}</span>
-                <div>
-                  <h3 className="font-semibold text-slate-800">{friend.name}</h3>
-                  <p className="text-slate-600">{friend.username}</p>
-                  <p className="text-sm text-slate-500">
-                    {friend.followers} followers • {friend.following} following
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => {}}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-                  friend.isFollowing 
-                    ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
-                    : 'bg-slate-800 text-white hover:bg-slate-700'
-                }`}
-              >
-                {friend.isFollowing ? (
-                  <>
-                    <Users className="mr-2 h-4 w-4" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Follow
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProgressPhotosView = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Progress Photos</h2>
-        <label className="bg-slate-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-700 transition-colors flex items-center">
-          <Plus className="mr-2 h-4 w-4" />
-          Upload Photo
-          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-        </label>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {progressPhotos.map((photo) => (
-          <div key={photo.id} className="bg-stone-50 rounded-xl shadow-lg overflow-hidden border border-stone-200">
-            <img src={photo.src} alt="Progress" className="w-full h-48 object-cover" />
-            <div className="p-4">
-              <p className="text-sm text-slate-600 mb-2">{photo.date}</p>
-              <textarea 
-                placeholder="Add notes about this progress photo..."
-                className="w-full text-sm border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
-                value={photo.notes}
-                onChange={(e) => {
-                  setProgressPhotos(progressPhotos.map(p => 
-                    p.id === photo.id ? {...p, notes: e.target.value} : p
-                  ));
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {progressPhotos.length === 0 && (
-        <div className="text-center py-12">
-          <Camera className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-          <h3 className="text-lg font-semibold text-slate-600 mb-2">No progress photos yet</h3>
-          <p className="text-slate-500">Upload your first photo to start tracking your transformation!</p>
-        </div>
-      )}
-    </div>
-  );
 
   const WorkoutView = () => {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -1644,6 +1499,160 @@ const FitnessTracker = () => {
       </div>
     );
   };
+
+  const ProfileView = () => (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <div className="flex items-center space-x-6 mb-6">
+          <div className="text-6xl">{userProfile.avatar}</div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-slate-800">{userProfile.name}</h2>
+            <p className="text-slate-600">{userProfile.username}</p>
+            <p className="text-slate-700 mt-2">{userProfile.bio}</p>
+          </div>
+          <button className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center">
+            <Settings className="mr-2 h-4 w-4" />
+            Edit Profile
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-5 gap-4 text-center">
+          <div>
+            <p className="text-2xl font-bold text-slate-700">{userProfile.workoutsCompleted}</p>
+            <p className="text-sm text-slate-600">Workouts</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-emerald-600">{userProfile.goalsAchieved}</p>
+            <p className="text-sm text-slate-600">Goals</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-purple-600">{userProfile.followers}</p>
+            <p className="text-sm text-slate-600">Followers</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-amber-600">{userProfile.following}</p>
+            <p className="text-sm text-slate-600">Following</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-rose-600">{userProfile.currentStreak}</p>
+            <p className="text-sm text-slate-600">Streak</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <h3 className="text-xl font-bold mb-4 text-slate-800">Recent Achievements</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {achievements.filter(a => a.earned).map((achievement) => (
+            <div key={achievement.id} className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <div className="text-3xl mb-2">{achievement.icon}</div>
+              <h4 className="font-semibold text-sm text-slate-700">{achievement.name}</h4>
+              <p className="text-xs text-slate-500 mt-1">{achievement.date}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const FriendsView = () => (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="bg-stone-50 rounded-xl shadow-lg p-6 border border-stone-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-800">Find Friends</h2>
+          <div className="flex items-center space-x-2">
+            <Search className="h-5 w-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border border-stone-300 rounded-lg px-3 py-2 bg-white focus:border-slate-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {friends.map((friend) => (
+            <div key={friend.id} className="flex items-center justify-between p-4 border border-stone-200 rounded-lg bg-white">
+              <div className="flex items-center space-x-4">
+                <span className="text-4xl">{friend.avatar}</span>
+                <div>
+                  <h3 className="font-semibold text-slate-800">{friend.name}</h3>
+                  <p className="text-slate-600">{friend.username}</p>
+                  <p className="text-sm text-slate-500">
+                    {friend.followers} followers • {friend.following} following
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => followUser(friend.id)}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+                  friend.isFollowing 
+                    ? 'bg-stone-200 text-slate-700 hover:bg-stone-300' 
+                    : 'bg-slate-800 text-white hover:bg-slate-700'
+                }`}
+              >
+                {friend.isFollowing ? (
+                  <>
+                    <Users className="mr-2 h-4 w-4" />
+                    Following
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Follow
+                  </>
+                )}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProgressPhotosView = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-800">Progress Photos</h2>
+        <label className="bg-slate-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-700 transition-colors flex items-center">
+          <Plus className="mr-2 h-4 w-4" />
+          Upload Photo
+          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+        </label>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {progressPhotos.map((photo) => (
+          <div key={photo.id} className="bg-stone-50 rounded-xl shadow-lg overflow-hidden border border-stone-200">
+            <img src={photo.src} alt="Progress" className="w-full h-48 object-cover" />
+            <div className="p-4">
+              <p className="text-sm text-slate-600 mb-2">{photo.date}</p>
+              <textarea 
+                placeholder="Add notes about this progress photo..."
+                className="w-full text-sm border border-stone-300 rounded p-2 bg-white focus:border-slate-500 focus:outline-none"
+                value={photo.notes}
+                onChange={(e) => {
+                  setProgressPhotos(progressPhotos.map(p => 
+                    p.id === photo.id ? {...p, notes: e.target.value} : p
+                  ));
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {progressPhotos.length === 0 && (
+        <div className="text-center py-12">
+          <Camera className="mx-auto h-16 w-16 text-slate-400 mb-4" />
+          <h3 className="text-lg font-semibold text-slate-600 mb-2">No progress photos yet</h3>
+          <p className="text-slate-500">Upload your first photo to start tracking your transformation!</p>
+        </div>
+      )}
+    </div>
+  );
 
   const AICoachView = () => (
     <div className="max-w-4xl mx-auto">
