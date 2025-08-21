@@ -350,12 +350,6 @@ const FitnessTracker = () => {
 
   const [newComment, setNewComment] = useState('');
 
-  const [aiRecommendations, setAiRecommendations] = useState([
-    { type: 'workout', title: 'Leg Day Focus', description: 'Your upper body is progressing faster. Add more leg exercises.', confidence: 89 },
-    { type: 'rest', title: 'Recovery Day', description: 'You\'ve trained 5 days straight. Consider a rest day.', confidence: 75 },
-    { type: 'nutrition', title: 'Protein Boost', description: 'Increase protein intake for better muscle recovery.', confidence: 82 }
-  ]);
-
   // Message functions
   const handleSendMessage = () => {
     if (!newMessage.trim() || !selectedChat) return;
@@ -1029,7 +1023,7 @@ const FitnessTracker = () => {
     </div>
   );
 
-  // Search View (keeping existing functionality)
+  // Search View
   const SearchView = () => (
     <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="mb-8">
@@ -1184,7 +1178,7 @@ const FitnessTracker = () => {
     </div>
   );
 
-  // Profile View (keeping existing functionality)
+  // Profile View
   const ProfileView = () => (
     <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-8">
